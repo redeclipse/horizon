@@ -223,10 +223,15 @@ namespace game
             }
 
             if(d->inwater && d->physstate<=PHYS_FALL) anim |= ((d->move || d->strafe || d->vel.z+d->falling.z>0 ? ANIM_SWIM : ANIM_SINK)|ANIM_LOOP)<<ANIM_SECONDARY;
-            else if(d->turnside) anim |= ((d->turnside>0 ? ANIM_WALL_RUN_LEFT : ANIM_WALL_RUN_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
+            else if(d->parkourside) anim |= ((d->parkourside>0 ? ANIM_WALL_RUN_LEFT : ANIM_WALL_RUN_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
             else if(d->physstate == PHYS_FALL && d->timeinair >= 50)
             {
-                basetime2 = d->timeinair;
+                basetime2 = lastmillis-d->timeinair;
+                if(d->lastjump && lastmillis-d->lastjump < JUMPDELAY/2)
+                {
+                    anim |= (ANIM_WALL_JUMP|ANIM_LOOP)<<ANIM_SECONDARY;
+                    basetime2 = d->lastjump;
+                }
                 if(d->crouching)
                 {
                     if(d->move>0) anim |= ANIM_CROUCH_JUMP_FORWARD<<ANIM_SECONDARY;
@@ -246,6 +251,12 @@ namespace game
                 else if(d->strafe) anim |= ((d->strafe>0 ? ANIM_CRAWL_LEFT : ANIM_CRAWL_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
                 else if(d->move<0) anim |= (ANIM_CRAWL_BACKWARD|ANIM_LOOP)<<ANIM_SECONDARY;
                 else anim |= (ANIM_CROUCH|ANIM_LOOP)<<ANIM_SECONDARY;
+            }
+            else if(sqrtf(d->vel.x*d->vel.x+d->vel.y*d->vel.y) >= RUNSPEED)
+            {
+                if(d->move>0) anim |= (ANIM_RUN_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
+                else if(d->strafe) anim |= ((d->strafe>0 ? ANIM_RUN_LEFT : ANIM_RUN_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
+                else if(d->move<0) anim |= (ANIM_RUN_BACKWARD|ANIM_LOOP)<<ANIM_SECONDARY;
             }
             else if(d->move>0) anim |= (ANIM_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
             else if(d->strafe) anim |= ((d->strafe>0 ? ANIM_LEFT : ANIM_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;

@@ -9,6 +9,7 @@ enum
 {
     ANIM_DEAD = ANIM_GAMESPECIFIC, ANIM_DYING, ANIM_IDLE,
     ANIM_FORWARD, ANIM_BACKWARD, ANIM_LEFT, ANIM_RIGHT,
+    ANIM_RUN_FORWARD, ANIM_RUN_BACKWARD, ANIM_RUN_LEFT, ANIM_RUN_RIGHT,
     ANIM_JUMP_FORWARD, ANIM_JUMP_BACKWARD, ANIM_JUMP_LEFT, ANIM_JUMP_RIGHT, ANIM_JUMP,
     ANIM_CROUCH, ANIM_CRAWL_FORWARD, ANIM_CRAWL_BACKWARD, ANIM_CRAWL_LEFT, ANIM_CRAWL_RIGHT,
     ANIM_CROUCH_JUMP_FORWARD, ANIM_CROUCH_JUMP_BACKWARD, ANIM_CROUCH_JUMP_LEFT, ANIM_CROUCH_JUMP_RIGHT, ANIM_CROUCH_JUMP,
@@ -23,6 +24,7 @@ static const char * const animnames[] =
 {
     "mapmodel", "dead", "dying", "idle",
     "forward", "backward", "left", "right",
+    "run forward", "run backward", "run left", "run right",
     "jump forward", "jump backward", "jump left", "jump right", "jump",
     "crouch", "crawl forward", "crawl backward", "crawl left", "crawl right",
     "crouch jump forward", "crouch jump backward", "crouch jump left", "crouch jump right", "crouch jump",

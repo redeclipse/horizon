@@ -61,8 +61,8 @@ struct physent                                  // base entity type, can be affe
     vec deltapos, newpos;                       // movement interpolation
     float yaw, pitch, roll;
     float maxspeed;                             // cubes per second, 100 for player
-    int timeinair, turnside, turnmillis;
-    int lastturn, lastjump;
+    int timeinair, parkourside, turnmillis;
+    int lastparkour, lastjump, numparkour;
     float turnyaw, turnroll;
     float radius, eyeheight, maxheight, aboveeye; // bounding box size
     float xradius, yradius, zmargin;
@@ -80,7 +80,7 @@ struct physent                                  // base entity type, can be affe
     bool blocked;                               // used by physics to signal ai
 
     physent() : o(0, 0, 0), deltapos(0, 0, 0), newpos(0, 0, 0), yaw(0), pitch(0), roll(0), maxspeed(100),
-               radius(4.1f), eyeheight(18), maxheight(18), aboveeye(2), xradius(4.1f), yradius(4.1f), zmargin(0),
+               radius(4.1f), eyeheight(14), maxheight(14), aboveeye(1), xradius(3), yradius(3), zmargin(0),
                state(CS_ALIVE), editstate(CS_ALIVE), type(ENT_PLAYER),
                collidetype(COLLIDE_ELLIPSE),
                blocked(false)
@@ -96,9 +96,9 @@ struct physent                                  // base entity type, can be affe
     {
         inwater = 0;
         timeinair = 0;
-        turnside = turnmillis = 0;
+        parkourside = turnmillis = 0;
         turnyaw = turnroll = 0;
-        lastturn = lastjump = 0;
+        lastparkour = lastjump = numparkour = 0;
         eyeheight = maxheight;
         jumping = false;
         strafe = move = crouching = 0;

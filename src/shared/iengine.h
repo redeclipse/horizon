@@ -371,6 +371,14 @@ extern void clearmapcrc();
 extern bool loadents(const char *fname, vector<entity> &ents, uint *crc = NULL);
 
 // physics
+extern float STAIRHEIGHT, FLOORZ, SLOPEZ, WALLZ;
+extern float JUMPVEL, GRAVITY, PARKOURVEL, KICKVEL, VAULTVEL;
+extern float VAULTMIN, VAULTMAX, FACINGANGLE;
+extern int JUMPDELAY, PARKOURDELAY, PARKOURMILLIS, PARKOURLENGTH, PARKOURGRAVDELAY, PARKOURCOUNT;
+extern float PARKOURANGLE, PARKOURGRIP;
+extern float LIQUIDSPEED, STRAFESCALE, RUNSPEED, RUNSCALE, PARKOURSCALE;
+extern float WATERFRIC, FLOORFRIC, AIRFRIC, PARKOURFRIC;
+
 extern vec collidewall;
 extern bool collideinside;
 extern physent *collideplayer;
