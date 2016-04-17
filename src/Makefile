@@ -106,7 +106,6 @@ CLIENT_OBJS= \
 	game/entities.o \
 	game/game.o \
 	game/render.o \
-	game/scoreboard.o \
 	game/server.o \
 	game/waypoint.o \
 	game/weapon.o
@@ -427,7 +426,7 @@ game/ai.o: shared/ents.h shared/command.h shared/glexts.h shared/glemu.h
 game/ai.o: shared/iengine.h shared/igame.h game/ai.h
 game/client.o: game/game.h shared/cube.h shared/tools.h shared/geom.h
 game/client.o: shared/ents.h shared/command.h shared/glexts.h shared/glemu.h
-game/client.o: shared/iengine.h shared/igame.h game/ai.h game/ctf.h
+game/client.o: shared/iengine.h shared/igame.h game/ai.h
 game/entities.o: game/game.h shared/cube.h shared/tools.h shared/geom.h
 game/entities.o: shared/ents.h shared/command.h shared/glexts.h
 game/entities.o: shared/glemu.h shared/iengine.h shared/igame.h game/ai.h
@@ -437,13 +436,10 @@ game/game.o: shared/iengine.h shared/igame.h game/ai.h
 game/render.o: game/game.h shared/cube.h shared/tools.h shared/geom.h
 game/render.o: shared/ents.h shared/command.h shared/glexts.h shared/glemu.h
 game/render.o: shared/iengine.h shared/igame.h game/ai.h
-game/scoreboard.o: game/game.h shared/cube.h shared/tools.h shared/geom.h
-game/scoreboard.o: shared/ents.h shared/command.h shared/glexts.h
-game/scoreboard.o: shared/glemu.h shared/iengine.h shared/igame.h game/ai.h
 game/server.o: game/game.h shared/cube.h shared/tools.h shared/geom.h
 game/server.o: shared/ents.h shared/command.h shared/glexts.h shared/glemu.h
-game/server.o: shared/iengine.h shared/igame.h game/ai.h game/ctf.h
-game/server.o: game/extinfo.h game/aiman.h
+game/server.o: shared/iengine.h shared/igame.h game/ai.h
+game/server.o: game/aiman.h
 game/waypoint.o: game/game.h shared/cube.h shared/tools.h shared/geom.h
 game/waypoint.o: shared/ents.h shared/command.h shared/glexts.h
 game/waypoint.o: shared/glemu.h shared/iengine.h shared/igame.h game/ai.h
@@ -487,7 +483,7 @@ standalone/game/entities.o: shared/iengine.h shared/igame.h game/ai.h
 standalone/game/server.o: game/game.h shared/cube.h shared/tools.h
 standalone/game/server.o: shared/geom.h shared/ents.h shared/command.h
 standalone/game/server.o: shared/iengine.h shared/igame.h game/ai.h
-standalone/game/server.o: game/ctf.h game/extinfo.h game/aiman.h
+standalone/game/server.o: game/aiman.h
 standalone/engine/master.o: shared/cube.h shared/tools.h shared/geom.h
 standalone/engine/master.o: shared/ents.h shared/command.h shared/iengine.h
 standalone/engine/master.o: shared/igame.h
