@@ -47,7 +47,7 @@ namespace entities
         static const char * const entmdlnames[MAXENTTYPES] =
         {
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            "game/teleport", NULL,
+            NULL, NULL,
             NULL
         };
         return entmdlnames[type];
@@ -132,11 +132,7 @@ namespace entities
         ents[n]->clearspawned();
         if(!d) return;
         itemstat &is = itemstats[type-I_FIRST];
-        if(d!=player1 || isthirdperson())
-        {
-            //particle_text(d->abovehead(), is.name, PART_TEXT, 2000, 0xFFC864, 4.0f, -8);
-            particle_icon(d->abovehead(), is.icon%4, is.icon/4, PART_HUD_ICON_GREY, 2000, 0xFFFFFF, 2.0f, -8);
-        }
+        if(d!=player1 || isthirdperson()) particle_text(d->abovehead(), is.name, PART_TEXT, 2000, 0xFFC864, 4.0f, -8);
         playsound(itemstats[type-I_FIRST].sound, d!=player1 ? &d->o : NULL, NULL, 0, 0, 0, -1, 0, 1500);
         d->pickup(type);
         if(d==player1) switch(type)

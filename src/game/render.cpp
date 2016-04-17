@@ -61,7 +61,8 @@ namespace game
 
     static const playermodelinfo playermodels[] =
     {
-        { "player/bones", "hudweap" , "player" , true }
+        { "player/male", "player" , true },
+        { "player/female", "player" , true }
     };
 
     extern void changedplayermodel();
@@ -176,19 +177,9 @@ namespace game
             attack = attacks[d->lastattack].anim;
             delay = attacks[d->lastattack].attackdelay+50;
         }
-        if(intermission && d->state!=CS_DEAD)
-        {
-            anim = attack = ANIM_LOSE|ANIM_LOOP;
-        }
-        else if(d->state==CS_ALIVE && d->lasttaunt && lastmillis-d->lasttaunt<1000 && lastmillis-d->lastaction>delay)
-        {
-            lastaction = d->lasttaunt;
-            anim = attack = ANIM_TAUNT;
-            delay = 1000;
-        }
         modelattach a[5];
         int ai = 0;
-        if(weaps[d->weapselect].vwep)
+        if(weaps[d->weapselect].model)
         {
             int vanim = ANIM_VWEP_IDLE|ANIM_LOOP, vtime = 0;
             if(lastaction && d->lastattack >= 0 && attacks[d->lastattack].weap==d->weapselect && lastmillis < lastaction + delay)
@@ -196,18 +187,19 @@ namespace game
                 vanim = attacks[d->lastattack].vwepanim;
                 vtime = lastaction;
             }
-            a[ai++] = modelattach("tag_weapon", weaps[d->weapselect].vwep, vanim, vtime);
+            defformatstring(weapname, "%s/vwep", mdl.model);
+            a[ai++] = modelattach("tag_weapon", weapname, vanim, vtime);
         }
         if(mainpass && !(flags&MDL_ONLYSHADOW))
         {
             d->muzzle = vec(-1, -1, -1);
-            if(weaps[d->weapselect].vwep) a[ai++] = modelattach("tag_muzzle", &d->muzzle);
+            if(weaps[d->weapselect].model) a[ai++] = modelattach("tag_muzzle", &d->muzzle);
         }
         const char *mdlname = mdl.model;
         float yaw = testanims && d==player1 ? 0 : d->yaw,
               pitch = testpitch && d==player1 ? testpitch : d->pitch;
         vec o = d->feetpos();
-        int basetime = 0;
+        int basetime = 0, basetime2 = 0;
         if(animoverride) anim = (animoverride<0 ? ANIM_ALL : animoverride)|ANIM_LOOP;
         else if(d->state==CS_DEAD)
         {
@@ -217,8 +209,7 @@ namespace game
             else if(lastmillis-basetime>1000) anim = ANIM_DEAD|ANIM_LOOP|ANIM_NOPITCH;
         }
         else if(d->state==CS_EDITING || d->state==CS_SPECTATOR) anim = ANIM_EDIT|ANIM_LOOP;
-        else if(d->state==CS_LAGGED)                            anim = ANIM_LAG|ANIM_LOOP;
-        else if(!intermission)
+        else if(!intermission && game::allowmove(d))
         {
             if(lastmillis-d->lastpain < 300)
             {
@@ -231,44 +222,42 @@ namespace game
                 basetime = lastaction;
             }
 
-            if(d->inwater && d->physstate<=PHYS_FALL) anim |= (((game::allowmove(d) && (d->move || d->strafe)) || d->vel.z+d->falling.z>0 ? ANIM_SWIM : ANIM_SINK)|ANIM_LOOP)<<ANIM_SECONDARY;
-            else
+            if(d->inwater && d->physstate<=PHYS_FALL) anim |= ((d->move || d->strafe || d->vel.z+d->falling.z>0 ? ANIM_SWIM : ANIM_SINK)|ANIM_LOOP)<<ANIM_SECONDARY;
+            else if(d->physstate == PHYS_FALL && d->timeinair >= 50)
             {
-                static const int dirs[9] =
+                basetime2 = d->timeinair;
+                if(d->crouching)
                 {
-                    ANIM_RUN_SE, ANIM_RUN_S, ANIM_RUN_SW,
-                    ANIM_RUN_E,  0,          ANIM_RUN_W,
-                    ANIM_RUN_NE, ANIM_RUN_N, ANIM_RUN_NW
-                };
-                int dir = dirs[(d->move+1)*3 + (d->strafe+1)];
-                if(d->timeinair>100) anim |= ((dir ? dir+ANIM_JUMP_N-ANIM_RUN_N : ANIM_JUMP) | ANIM_END) << ANIM_SECONDARY;
-                else if(dir && game::allowmove(d)) anim |= (dir | ANIM_LOOP) << ANIM_SECONDARY;
+                    if(d->move>0) anim |= ANIM_CROUCH_JUMP_FORWARD<<ANIM_SECONDARY;
+                    else if(d->strafe) anim |= (d->strafe>0 ? ANIM_CROUCH_JUMP_LEFT : ANIM_CROUCH_JUMP_RIGHT)<<ANIM_SECONDARY;
+                    else if(d->move<0) anim |= ANIM_CROUCH_JUMP_BACKWARD<<ANIM_SECONDARY;
+                    else anim |= ANIM_CROUCH_JUMP<<ANIM_SECONDARY;
+                }
+                else if(d->move>0) anim |= ANIM_JUMP_FORWARD<<ANIM_SECONDARY;
+                else if(d->strafe) anim |= (d->strafe>0 ? ANIM_JUMP_LEFT : ANIM_JUMP_RIGHT)<<ANIM_SECONDARY;
+                else if(d->move<0) anim |= ANIM_JUMP_BACKWARD<<ANIM_SECONDARY;
+                else anim |= ANIM_JUMP<<ANIM_SECONDARY;
+                if(!basetime2) anim |= ANIM_END<<ANIM_SECONDARY;
             }
-
-            if(d->crouching) switch((anim>>ANIM_SECONDARY)&ANIM_INDEX)
+            else if(d->crouching)
             {
-                case ANIM_IDLE: anim &= ~(ANIM_INDEX<<ANIM_SECONDARY); anim |= ANIM_CROUCH<<ANIM_SECONDARY; break;
-                case ANIM_JUMP: anim &= ~(ANIM_INDEX<<ANIM_SECONDARY); anim |= ANIM_CROUCH_JUMP<<ANIM_SECONDARY; break;
-                case ANIM_SWIM: anim &= ~(ANIM_INDEX<<ANIM_SECONDARY); anim |= ANIM_CROUCH_SWIM<<ANIM_SECONDARY; break;
-                case ANIM_SINK: anim &= ~(ANIM_INDEX<<ANIM_SECONDARY); anim |= ANIM_CROUCH_SINK<<ANIM_SECONDARY; break;
-                case 0: anim |= (ANIM_CROUCH|ANIM_LOOP)<<ANIM_SECONDARY; break;
-                case ANIM_RUN_N: case ANIM_RUN_NE: case ANIM_RUN_E: case ANIM_RUN_SE: case ANIM_RUN_S: case ANIM_RUN_SW: case ANIM_RUN_W: case ANIM_RUN_NW:
-                    anim += (ANIM_CROUCH_N - ANIM_RUN_N) << ANIM_SECONDARY;
-                    break;
-                case ANIM_JUMP_N: case ANIM_JUMP_NE: case ANIM_JUMP_E: case ANIM_JUMP_SE: case ANIM_JUMP_S: case ANIM_JUMP_SW: case ANIM_JUMP_W: case ANIM_JUMP_NW:
-                    anim += (ANIM_CROUCH_JUMP_N - ANIM_JUMP_N) << ANIM_SECONDARY;
-                    break;
+                if(d->move>0) anim |= (ANIM_CRAWL_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
+                else if(d->strafe) anim |= ((d->strafe>0 ? ANIM_CRAWL_LEFT : ANIM_CRAWL_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
+                else if(d->move<0) anim |= (ANIM_CRAWL_BACKWARD|ANIM_LOOP)<<ANIM_SECONDARY;
+                else anim |= (ANIM_CROUCH|ANIM_LOOP)<<ANIM_SECONDARY;
             }
+            else if(d->move>0) anim |= (ANIM_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
+            else if(d->strafe) anim |= ((d->strafe>0 ? ANIM_LEFT : ANIM_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
+            else if(d->move<0) anim |= (ANIM_BACKWARD|ANIM_LOOP)<<ANIM_SECONDARY;
 
             if((anim&ANIM_INDEX)==ANIM_IDLE && (anim>>ANIM_SECONDARY)&ANIM_INDEX) anim >>= ANIM_SECONDARY;
         }
         if(!((anim>>ANIM_SECONDARY)&ANIM_INDEX)) anim |= (ANIM_IDLE|ANIM_LOOP)<<ANIM_SECONDARY;
-        if(d!=player1) flags |= MDL_CULL_VFC | MDL_CULL_OCCLUDED | MDL_CULL_QUERY;
-        if(d->type==ENT_PLAYER) flags |= MDL_FULLBRIGHT;
+        if(d != player1) flags |= MDL_CULL_VFC | MDL_CULL_OCCLUDED | MDL_CULL_QUERY;
+        if(d->type == ENT_PLAYER) flags |= MDL_FULLBRIGHT;
         else flags |= MDL_CULL_DIST;
         if(!mainpass) flags &= ~(MDL_FULLBRIGHT | MDL_CULL_VFC | MDL_CULL_OCCLUDED | MDL_CULL_QUERY | MDL_CULL_DIST);
-        float trans = d->state == CS_LAGGED ? 0.5f : 1.0f;
-        rendermodel(mdlname, anim, o, yaw, pitch, 0, flags, d, a[0].tag ? a : NULL, basetime, 0, fade, vec4(vec::hexcolor(color), trans));
+        rendermodel(mdlname, anim, o, yaw, pitch, 0, flags, d, a[0].tag ? a : NULL, basetime, basetime2, fade, vec4(vec::hexcolor(color), d->state == CS_LAGGED ? 0.5f : 1.0f));
     }
 
     static inline void renderplayer(gameent *d, float fade = 1, int flags = 0)
@@ -350,29 +339,6 @@ namespace game
         hudent() { type = ENT_CAMERA; }
     } weapinterp;
 
-    void drawhudmodel(gameent *d, int anim, int basetime)
-    {
-        const char *file = weaps[d->weapselect].file;
-        if(!file) return;
-
-        vec sway;
-        vecfromyawpitch(d->yaw, 0, 0, 1, sway);
-        float steps = swaydist/swaystep*M_PI;
-        sway.mul(swayside*cosf(steps));
-        sway.z = swayup*(fabs(sinf(steps)) - 1);
-        sway.add(swaydir).add(d->o);
-        if(!hudweapsway) sway = d->o;
-
-        const playermodelinfo &mdl = getplayermodelinfo(d);
-        int color = getplayercolor(d);
-        defformatstring(weapname, "%s/%s", mdl.hudweaps, file);
-        modelattach a[2];
-        d->muzzle = vec(-1, -1, -1);
-        a[0] = modelattach("tag_muzzle", &d->muzzle);
-        rendermodel(weapname, anim, sway, d->yaw, d->pitch, 0, MDL_NOBATCH, NULL, a, basetime, 0, 1, vec4(vec::hexcolor(color), 1));
-        if(d->muzzle.x >= 0) d->muzzle = calcavatarpos(d->muzzle, 12);
-    }
-
     void drawhudweap()
     {
         gameent *d = hudplayer();
@@ -381,14 +347,34 @@ namespace game
             d->muzzle = player1->muzzle = vec(-1, -1, -1);
             return;
         }
+        vec sway;
+        vecfromyawpitch(d->yaw, 0, 0, 1, sway);
+        float steps = swaydist/swaystep*M_PI;
+        sway.mul(swayside*cosf(steps));
+        sway.z = swayup*(fabs(sinf(steps)) - 1);
+        sway.add(swaydir).add(d->o);
+        if(!hudweapsway) sway = d->o;
+        d->muzzle = vec(-1, -1, -1);
 
-        int anim = ANIM_WEAP_IDLE|ANIM_LOOP, basetime = 0;
-        if(d->lastaction && d->lastattack >= 0 && attacks[d->lastattack].weap==d->weapselect && lastmillis-d->lastaction<attacks[d->lastattack].attackdelay)
+        const playermodelinfo &mdl = getplayermodelinfo(d);
+        int color = getplayercolor(d);
+        defformatstring(mdlname, "%s/hwep", mdl.model);
+        modelattach a[2];
+        int ai = 0, lastaction = d->lastaction, anim = ANIM_WEAP_IDLE|ANIM_LOOP, basetime = 0;
+        if(weaps[d->weapselect].model)
         {
-            anim = attacks[d->lastattack].hudanim;
-            basetime = d->lastaction;
+            if(lastaction && d->lastattack >= 0 && attacks[d->lastattack].weap==d->weapselect && lastmillis < lastaction+attacks[d->lastattack].attackdelay+50)
+            {
+                anim = attacks[d->lastattack].hudanim;
+                basetime = lastaction;
+            }
+            defformatstring(weapname, "%s/hwep", mdl.model);
+            a[ai++] = modelattach("tag_weapon", weapname, anim, basetime);
+            a[ai++] = modelattach("tag_muzzle", &d->muzzle);
         }
-        drawhudmodel(d, anim, basetime);
+        else a[ai++] = modelattach("taw_weapon", &d->muzzle);
+        rendermodel(mdlname, anim, sway, d->yaw, d->pitch, 0, MDL_NOBATCH, NULL, a, basetime, 0, 1, vec4(vec::hexcolor(color), 1));
+        if(d->muzzle.x >= 0) d->muzzle = calcavatarpos(d->muzzle, 12);
     }
 
     void renderavatar()
@@ -441,15 +427,14 @@ namespace game
 
     void preloadweapons()
     {
-        const playermodelinfo &mdl = getplayermodelinfo(player1);
         loopi(NUMWEAPS)
         {
-            const char *file = weaps[i].file;
+            const char *file = weaps[i].model;
             if(!file || !*file) continue;
             string fname;
-            formatstring(fname, "%s/%s", mdl.hudweaps, file);
+            formatstring(fname, "%s/hwep", file);
             preloadmodel(fname);
-            formatstring(fname, "worldweap/%s", file);
+            formatstring(fname, "%s/vwep", file);
             preloadmodel(fname);
         }
     }

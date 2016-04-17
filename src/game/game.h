@@ -7,16 +7,12 @@
 
 enum
 {
-    ANIM_DEAD = ANIM_GAMESPECIFIC, ANIM_DYING,
-    ANIM_IDLE, ANIM_RUN_N, ANIM_RUN_NE, ANIM_RUN_E, ANIM_RUN_SE, ANIM_RUN_S, ANIM_RUN_SW, ANIM_RUN_W, ANIM_RUN_NW,
-    ANIM_JUMP, ANIM_JUMP_N, ANIM_JUMP_NE, ANIM_JUMP_E, ANIM_JUMP_SE, ANIM_JUMP_S, ANIM_JUMP_SW, ANIM_JUMP_W, ANIM_JUMP_NW,
-    ANIM_SINK, ANIM_SWIM,
-    ANIM_CROUCH, ANIM_CROUCH_N, ANIM_CROUCH_NE, ANIM_CROUCH_E, ANIM_CROUCH_SE, ANIM_CROUCH_S, ANIM_CROUCH_SW, ANIM_CROUCH_W, ANIM_CROUCH_NW,
-    ANIM_CROUCH_JUMP, ANIM_CROUCH_JUMP_N, ANIM_CROUCH_JUMP_NE, ANIM_CROUCH_JUMP_E, ANIM_CROUCH_JUMP_SE, ANIM_CROUCH_JUMP_S, ANIM_CROUCH_JUMP_SW, ANIM_CROUCH_JUMP_W, ANIM_CROUCH_JUMP_NW,
-    ANIM_CROUCH_SINK, ANIM_CROUCH_SWIM,
-    ANIM_SHOOT, ANIM_MELEE,
-    ANIM_PAIN,
-    ANIM_EDIT, ANIM_LAG, ANIM_TAUNT, ANIM_WIN, ANIM_LOSE,
+    ANIM_DEAD = ANIM_GAMESPECIFIC, ANIM_DYING, ANIM_IDLE,
+    ANIM_FORWARD, ANIM_BACKWARD, ANIM_LEFT, ANIM_RIGHT,
+    ANIM_JUMP_FORWARD, ANIM_JUMP_BACKWARD, ANIM_JUMP_LEFT, ANIM_JUMP_RIGHT, ANIM_JUMP,
+    ANIM_CROUCH, ANIM_CRAWL_FORWARD, ANIM_CRAWL_BACKWARD, ANIM_CRAWL_LEFT, ANIM_CRAWL_RIGHT,
+    ANIM_CROUCH_JUMP_FORWARD, ANIM_CROUCH_JUMP_BACKWARD, ANIM_CROUCH_JUMP_LEFT, ANIM_CROUCH_JUMP_RIGHT, ANIM_CROUCH_JUMP,
+    ANIM_SWIM, ANIM_SINK, ANIM_SHOOT, ANIM_MELEE, ANIM_PAIN, ANIM_EDIT,
     ANIM_WEAP_IDLE, ANIM_WEAP_SHOOT, ANIM_WEAP_MELEE,
     ANIM_VWEP_IDLE, ANIM_VWEP_SHOOT, ANIM_VWEP_MELEE,
     NUMANIMS
@@ -24,17 +20,12 @@ enum
 
 static const char * const animnames[] =
 {
-    "mapmodel",
-    "dead", "dying",
-    "idle", "run N", "run NE", "run E", "run SE", "run S", "run SW", "run W", "run NW",
-    "jump", "jump N", "jump NE", "jump E", "jump SE", "jump S", "jump SW", "jump W", "jump NW",
-    "sink", "swim",
-    "crouch", "crouch N", "crouch NE", "crouch E", "crouch SE", "crouch S", "crouch SW", "crouch W", "crouch NW",
-    "crouch jump", "crouch jump N", "crouch jump NE", "crouch jump E", "crouch jump SE", "crouch jump S", "crouch jump SW", "crouch jump W", "crouch jump NW",
-    "crouch sink", "crouch swim",
-    "shoot", "melee",
-    "pain",
-    "edit", "lag", "taunt", "win", "lose",
+    "mapmodel", "dead", "dying", "idle",
+    "forward", "backward", "left", "right",
+    "jump forward", "jump backward", "jump left", "jump right", "jump",
+    "crouch", "crawl forward", "crawl backward", "crawl left", "crawl right",
+    "crouch jump forward", "crouch jump backward", "crouch jump left", "crouch jump right", "crouch jump",
+    "swim", "sink", "shoot", "melee", "pain", "edit",
     "weap idle", "weap shoot", "weap melee",
     "vwep idle", "vwep shoot", "vwep melee"
 };
@@ -243,11 +234,11 @@ static const struct attackinfo { int weap, action, anim, vwepanim, hudanim, soun
     { WEAP_PULSE, ACT_MELEE, ANIM_MELEE, ANIM_VWEP_MELEE, ANIM_WEAP_MELEE, S_MELEE,  S_MELEE,  500, 1, 0, 2,    0,  0,   14, 1,    0,  0, 0, 0 }
 };
 
-static const struct weapinfo { const char *name, *file, *vwep; int attacks[NUMACTS]; } weaps[NUMWEAPS] =
+static const struct weapinfo { const char *name, *model; int attacks[NUMACTS]; } weaps[NUMWEAPS] =
 {
-    { "none", NULL, NULL, { -1, ATK_NONE_GRAB, ATK_NONE_MELEE }, },
-    { "railgun", "railgun", "worldweap/railgun", { -1, ATK_RAIL_SHOOT, ATK_RAIL_MELEE }, },
-    { "pulse rifle", "pulserifle", "worldweap/pulserifle", { -1, ATK_PULSE_SHOOT, ATK_PULSE_MELEE } }
+    { "none", NULL, { -1, ATK_NONE_GRAB, ATK_NONE_MELEE }, },
+    { "railgun", NULL, { -1, ATK_RAIL_SHOOT, ATK_RAIL_MELEE }, },
+    { "pulse rifle", NULL, { -1, ATK_PULSE_SHOOT, ATK_PULSE_MELEE } }
 };
 
 #include "ai.h"
@@ -473,8 +464,7 @@ namespace game
     // render
     struct playermodelinfo
     {
-        const char *model, *hudweaps,
-                   *icon;
+        const char *model, *icon;
         bool ragdoll;
     };
 
