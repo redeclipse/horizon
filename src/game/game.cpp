@@ -135,6 +135,7 @@ namespace game
         {
             player1->yaw = target->yaw;
             player1->pitch = target->state==CS_DEAD ? 0 : target->pitch;
+            player1->roll = target->roll;
             player1->o = target->o;
             player1->resetinterp();
         }

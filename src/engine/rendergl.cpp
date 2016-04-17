@@ -1390,6 +1390,7 @@ void modifyorient(float yaw, float pitch)
     {
         player->yaw = camera1->yaw;
         player->pitch = camera1->pitch;
+        player->roll = camera1->roll;
     }
 }
 

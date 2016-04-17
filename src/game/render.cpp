@@ -197,7 +197,7 @@ namespace game
         }
         const char *mdlname = mdl.model;
         float yaw = testanims && d==player1 ? 0 : d->yaw,
-              pitch = testpitch && d==player1 ? testpitch : d->pitch;
+              pitch = testpitch && d==player1 ? testpitch : d->pitch, roll = d->roll;
         vec o = d->feetpos();
         int basetime = 0, basetime2 = 0;
         if(animoverride) anim = (animoverride<0 ? ANIM_ALL : animoverride)|ANIM_LOOP;
@@ -223,6 +223,7 @@ namespace game
             }
 
             if(d->inwater && d->physstate<=PHYS_FALL) anim |= ((d->move || d->strafe || d->vel.z+d->falling.z>0 ? ANIM_SWIM : ANIM_SINK)|ANIM_LOOP)<<ANIM_SECONDARY;
+            else if(d->turnside) anim |= ((d->turnside>0 ? ANIM_WALL_RUN_LEFT : ANIM_WALL_RUN_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
             else if(d->physstate == PHYS_FALL && d->timeinair >= 50)
             {
                 basetime2 = d->timeinair;
@@ -257,7 +258,7 @@ namespace game
         if(d->type == ENT_PLAYER) flags |= MDL_FULLBRIGHT;
         else flags |= MDL_CULL_DIST;
         if(!mainpass) flags &= ~(MDL_FULLBRIGHT | MDL_CULL_VFC | MDL_CULL_OCCLUDED | MDL_CULL_QUERY | MDL_CULL_DIST);
-        rendermodel(mdlname, anim, o, yaw, pitch, 0, flags, d, a[0].tag ? a : NULL, basetime, basetime2, fade, vec4(vec::hexcolor(color), d->state == CS_LAGGED ? 0.5f : 1.0f));
+        rendermodel(mdlname, anim, o, yaw, pitch, roll, flags, d, a[0].tag ? a : NULL, basetime, basetime2, fade, vec4(vec::hexcolor(color), d->state == CS_LAGGED ? 0.5f : 1.0f));
     }
 
     static inline void renderplayer(gameent *d, float fade = 1, int flags = 0)
@@ -373,7 +374,7 @@ namespace game
             a[ai++] = modelattach("tag_muzzle", &d->muzzle);
         }
         else a[ai++] = modelattach("taw_weapon", &d->muzzle);
-        rendermodel(mdlname, anim, sway, d->yaw, d->pitch, 0, MDL_NOBATCH, NULL, a, basetime, 0, 1, vec4(vec::hexcolor(color), 1));
+        rendermodel(mdlname, anim, sway, d->yaw, d->pitch, d->roll, MDL_NOBATCH, NULL, a, basetime, 0, 1, vec4(vec::hexcolor(color), 1));
         if(d->muzzle.x >= 0) d->muzzle = calcavatarpos(d->muzzle, 12);
     }
 

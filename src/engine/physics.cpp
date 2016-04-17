@@ -420,8 +420,8 @@ const float STAIRHEIGHT = 4.1f;
 const float FLOORZ = 0.867f;
 const float SLOPEZ = 0.5f;
 const float WALLZ = 0.2f;
-extern const float JUMPVEL = 125.0f;
-extern const float GRAVITY = 200.0f;
+extern const float JUMPVEL = 150.0f;
+extern const float GRAVITY = 150.0f;
 
 bool ellipseboxcollide(physent *d, const vec &dir, const vec &o, const vec &center, float yaw, float xr, float yr, float hi, float lo)
 {
@@ -1351,6 +1351,12 @@ void falling(physent *d, vec &dir, const vec &floor)
         d->physstate = PHYS_SLIDE;
         d->floor = floor;
     }
+    else if(d->turnside)
+    {
+        d->timeinair = 0;
+        d->physstate = PHYS_FLOOR;
+        d->floor = vec(0, 0, 1);
+    }
     else if(d->physstate < PHYS_SLOPE || dir.dot(d->floor) > 0.01f*dir.magnitude() || (floor.z != 0.0f && floor.z != 1.0f) || !trystepdown(d, dir, true))
         d->physstate = PHYS_FALL;
 }
@@ -1713,14 +1719,12 @@ void vectoyawpitch(const vec &v, float &yaw, float &pitch)
 
 #define PHYSFRAMETIME 8
 
-VARP(maxroll, 0, 0, 20);
-FVAR(straferoll, 0, 0.033f, 90);
-FVAR(faderoll, 0, 0.95f, 1);
 VAR(floatspeed, 1, 100, 10000);
 
 void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curtime)
 {
-    bool allowmove = game::allowmove(pl);
+    bool allowmove = game::allowmove(pl), wantsmove = (pl->move || pl->strafe) && allowmove, onfloor = pl->physstate >= PHYS_SLOPE || water;
+    vec m(0.0f, 0.0f, 0.0f);
     if(floating)
     {
         if(pl->jumping && allowmove)
@@ -1728,37 +1732,173 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
             pl->jumping = false;
             pl->vel.z = max(pl->vel.z, JUMPVEL);
         }
+        vecfromyawpitch(pl->yaw, pl->pitch, pl->move, pl->strafe, m);
     }
-    else if(pl->physstate >= PHYS_SLOPE || water)
+    else
     {
-        if(water && !pl->inwater) pl->vel.div(8);
-        if(pl->jumping && allowmove)
+        if(!pl->turnside && pl->physstate == PHYS_FALL) pl->timeinair += curtime;
+        else pl->timeinair = 0;
+
+        if(pl->turnside && (lastmillis-pl->lastturn > 650 || pl->vel.magnitude() <= 1))
         {
-            pl->jumping = false;
-
-            pl->vel.z = max(pl->vel.z, JUMPVEL); // physics impulse upwards
-            if(water) { pl->vel.x /= 8.0f; pl->vel.y /= 8.0f; } // dampen velocity change even harder, gives correct water feel
-
-            game::physicstrigger(pl, local, 1, 0);
-        }
-    }
-    if(!floating && pl->physstate == PHYS_FALL) pl->timeinair += curtime;
-
-    vec m(0.0f, 0.0f, 0.0f);
-    if((pl->move || pl->strafe) && allowmove)
-    {
-        vecfromyawpitch(pl->yaw, floating || water || pl->type==ENT_CAMERA ? pl->pitch : 0, pl->move, pl->strafe, m);
-
-        if(!floating && pl->physstate >= PHYS_SLOPE)
-        {
-            /* move up or down slopes in air
-             * but only move up slopes in water
-             */
-            float dz = -(m.x*pl->floor.x + m.y*pl->floor.y)/pl->floor.z;
-            m.z = water ? max(m.z, dz) : dz;
+            pl->turnside = 0;
+            onfloor = false;
         }
 
-        m.normalize();
+        if(wantsmove)
+        {
+            vecfromyawpitch(pl->yaw, floating || water || pl->type == ENT_CAMERA ? pl->pitch : 0, pl->move, pl->strafe, m);
+            if(pl->physstate >= PHYS_SLOPE)
+            {
+                float dz = -(m.x*pl->floor.x + m.y*pl->floor.y)/pl->floor.z;
+                m.z = water ? max(m.z, dz) : dz;
+            }
+            m.normalize();
+        }
+
+        if(pl->turnside)
+        {
+            if(pl->jumping && !pl->lastjump)
+            {
+                vec keepvel = vec(pl->vel).add(pl->falling);
+                float mag = keepvel.magnitude()+(JUMPVEL*0.5f);
+                if(mag > 0)
+                {
+                    vec rft;
+                    vecfromyawpitch(pl->yaw, pl->pitch, 1, 0, rft);
+                    pl->vel = vec(rft).mul(mag);
+                    pl->falling = vec(0, 0, 0);
+                    pl->turnmillis = 250;
+                    pl->turnside = 0;
+                    pl->turnyaw = pl->turnroll = 0;
+                    pl->jumping = onfloor = false;
+                    pl->lastjump = lastmillis;
+                    game::physicstrigger(pl, local, 1, 0);
+                }
+            }
+        }
+        else
+        {
+            if(onfloor && pl->jumping)
+            {
+                pl->vel.z += JUMPVEL;
+                if(water)
+                {
+                    pl->vel.x *= 0.85f;
+                    pl->vel.y *= 0.85f;
+                }
+                pl->jumping = onfloor = false;
+                game::physicstrigger(pl, local, 1, 0);
+            }
+        }
+        bool found = false;
+        if((!onfloor && pl->jumping) || pl->turnside)
+        {
+            vec oldpos = pl->o, dir;
+            const int movements[6][2] = { { 2, 2 }, { 1, 2 }, { 1, -1 }, { 1, 1 }, { 0, 2 }, { -1, 2 } };
+            loopi(pl->turnside ? 6 : 4) // we do these insane checks so that running along walls works at all times
+            {
+                int move = movements[i][0], strafe = movements[i][1];
+                if(move == 2) move = pl->move > 0 ? pl->move : 0;
+                if(strafe == 2) strafe = pl->turnside ? pl->turnside : pl->strafe;
+                if(!move && !strafe) continue;
+                vecfromyawpitch(pl->yaw, 0, move, strafe, dir);
+                pl->o.add(dir);
+                bool collided = collide(pl);
+                pl->o = oldpos;
+                if(!collided || collideplayer || collidewall.iszero()) continue;
+                vec face = vec(collidewall).normalize();
+                if(fabs(face.z) <= 0.5f)
+                {
+                    bool parkour = pl->jumping && !onfloor && !pl->lastturn;
+                    float yaw = 0, pitch = 0;
+                    vectoyawpitch(face, yaw, pitch);
+                    float off = yaw-pl->yaw;
+                    if(off > 180) off -= 360;
+                    else if(off < -180) off += 360;
+                    bool iskick = fabs(off) >= 150, vault = false;
+                    if(pl->jumping && !pl->lastjump && iskick)
+                    {
+                        float space = pl->eyeheight+pl->aboveeye, m = 0.25f, n = 1.6f;
+                        pl->o.add(dir);
+                        if(onfloor)
+                        {
+                            pl->o.z += space*m;
+                            if(collide(pl))
+                            {
+                                pl->o.z += space*n-space*m;
+                                if(!collide(pl) || collideplayer) vault = true;
+                            }
+                        }
+                        else
+                        {
+                            pl->o.z += space*n;
+                            if(!collide(pl) || collideplayer) vault = true;
+                        }
+                        pl->o = oldpos;
+                    }
+                    if(!pl->turnside && (parkour || vault) && iskick)
+                    {
+                        vec keepvel = vec(pl->vel).add(pl->falling);
+                        float mag = keepvel.magnitude()+(JUMPVEL*0.5f);
+                        if(mag > 0)
+                        {
+                            vec rft;
+                            vecfromyawpitch(pl->yaw, vault ? 0.89f : fabs(pl->pitch), 1, 0, rft);
+                            rft.reflect(face);
+                            pl->vel = vec(rft).mul(mag);
+                            pl->falling = vec(0, 0, 0);
+                            pl->turnmillis = 250;
+                            pl->turnside = 0;
+                            pl->turnyaw = pl->turnroll = 0;
+                            pl->lastjump = lastmillis;
+                            pl->jumping = false;
+                            game::physicstrigger(pl, local, 1, 0);
+                        }
+                        break;
+                    }
+                    else if(pl->turnside || parkour)
+                    {
+                        int side = off < 0 ? -1 : 1;
+                        if(off < 0) yaw += 90;
+                        else yaw -= 90;
+                        while(yaw >= 360) yaw -= 360;
+                        while(yaw < 0) yaw += 360;
+                        vec rft;
+                        vecfromyawpitch(yaw, 0.f, 1, 0, rft);
+                        if(!pl->turnside)
+                        {
+                            vec keepvel = vec(pl->vel).add(pl->falling);
+                            float mag = keepvel.magnitude()+(JUMPVEL*0.1f);
+                            if(mag > 0)
+                            {
+                                pl->vel = vec(rft).mul(mag);
+                                pl->falling = vec(0, 0, 0);
+                                off = yaw-pl->yaw;
+                                if(off > 180) off -= 360;
+                                else if(off < -180) off += 360;
+                                pl->turnmillis = 250;
+                                pl->turnside = side;
+                                pl->turnyaw = off;
+                                pl->turnroll = (30*pl->turnside)-pl->roll;
+                                pl->lastturn = lastmillis;
+                                pl->jumping = false;
+                                game::physicstrigger(pl, local, 1, 0);
+                                found = true;
+                            }
+                            break;
+                        }
+                        else if(side == pl->turnside)
+                        {
+                            (m = rft).normalize(); // re-project and override
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if(!found && pl->turnside) pl->turnside = 0;
     }
 
     vec d(m);
@@ -1767,7 +1907,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
     {
         if(floating)
         {
-            if(pl==player) d.mul(floatspeed/100.0f);
+            if(pl == player) d.mul(floatspeed/100.0f);
         }
         else if(pl->crouching) d.mul(0.4f);
     }
@@ -1809,6 +1949,20 @@ void modifygravity(physent *pl, bool water, int curtime)
 // main physics routine, moves a player/monster for a curtime step
 // moveres indicated the physics precision (which is lower for monsters and multiplayer prediction)
 // local is false for multiplayer prediction
+template<class T>
+static inline void adjustscaled(T &n, int s)
+{
+    if(n > 0)
+    {
+        n = (T)(n/(1.f+sqrtf((float)curtime)/float(s)));
+        if(n <= 0) n = (T)0;
+    }
+    else if(n < 0)
+    {
+        n = (T)(n/(1.f+sqrtf((float)curtime)/float(s)));
+        if(n >= 0) n = (T)0;
+    }
+}
 
 bool moveplayer(physent *pl, int moveres, bool local, int curtime)
 {
@@ -1818,7 +1972,7 @@ bool moveplayer(physent *pl, int moveres, bool local, int curtime)
     float secs = curtime/1000.f;
 
     // apply gravity
-    if(!floating) modifygravity(pl, water, curtime);
+    if(!floating && !pl->turnside) modifygravity(pl, water, curtime);
     // apply any player generated changes in velocity
     modifyvelocity(pl, local, water, floating, curtime);
 
@@ -1851,16 +2005,11 @@ bool moveplayer(physent *pl, int moveres, bool local, int curtime)
         {
             game::physicstrigger(pl, local, -1, 0);
         }
+        if(!pl->turnside && timeinair && !pl->timeinair)
+            pl->lastturn = pl->lastjump = 0;
     }
 
     if(pl->state==CS_ALIVE) updatedynentcache(pl);
-
-    // automatically apply smooth roll when strafing
-
-    if(pl->strafe && maxroll) pl->roll = clamp(pl->roll - pow(clamp(1.0f + pl->strafe*pl->roll/maxroll, 0.0f, 1.0f), 0.33f)*pl->strafe*curtime*straferoll, -maxroll, maxroll);
-    else pl->roll *= curtime == PHYSFRAMETIME ? faderoll : pow(faderoll, curtime/float(PHYSFRAMETIME));
-
-    // play sounds on water transitions
 
     if(pl->inwater && !water)
     {
@@ -1872,6 +2021,18 @@ bool moveplayer(physent *pl, int moveres, bool local, int curtime)
     pl->inwater = water ? material&MATF_VOLUME : MAT_AIR;
 
     if(pl->state==CS_ALIVE && (pl->o.z < 0 || material&MAT_DEATH)) game::suicide(pl);
+    if(pl->turnmillis > 0)
+    {
+        float amt = float(curtime)/250.f, yaw = pl->turnyaw*amt, roll = pl->turnroll*amt;
+        if(yaw != 0) pl->yaw += yaw;
+        if(roll != 0) pl->roll += roll;
+        pl->turnmillis -= curtime;
+    }
+    else
+    {
+        pl->turnmillis = 0;
+        if(pl->roll != 0 && !pl->turnside) adjustscaled(pl->roll, 100);
+    }
 
     return true;
 }

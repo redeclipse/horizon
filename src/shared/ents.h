@@ -61,7 +61,9 @@ struct physent                                  // base entity type, can be affe
     vec deltapos, newpos;                       // movement interpolation
     float yaw, pitch, roll;
     float maxspeed;                             // cubes per second, 100 for player
-    int timeinair;
+    int timeinair, turnside, turnmillis;
+    int lastturn, lastjump;
+    float turnyaw, turnroll;
     float radius, eyeheight, maxheight, aboveeye; // bounding box size
     float xradius, yradius, zmargin;
     vec floor;                                  // the normal of floor the dynent is on
@@ -94,6 +96,9 @@ struct physent                                  // base entity type, can be affe
     {
         inwater = 0;
         timeinair = 0;
+        turnside = turnmillis = 0;
+        turnyaw = turnroll = 0;
+        lastturn = lastjump = 0;
         eyeheight = maxheight;
         jumping = false;
         strafe = move = crouching = 0;
