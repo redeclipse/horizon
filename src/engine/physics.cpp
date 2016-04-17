@@ -15,7 +15,8 @@ float JUMPVEL = 150;
 float GRAVITY = 150;
 float PARKOURVEL = 10;
 float KICKVEL = 50;
-float VAULTVEL = 100;
+float VAULTVEL = 125;
+float UPWALLVEL = 45;
 
 float VAULTMIN = 0.25f;
 float VAULTMAX = 1.6f;
@@ -32,6 +33,7 @@ float PARKOURGRIP = 0.8f;
 
 float LIQUIDSPEED = 0.85f;
 float STRAFESCALE = 0.75f;
+float BACKPEDALSCALE = 0.65f;
 float RUNSPEED = 99;
 float RUNSCALE = 1.5f;
 float PARKOURSCALE = 1.25f;
@@ -1817,7 +1819,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
             }
         }
         bool found = false;
-        if((!onfloor && pl->jumping) || pl->parkourside)
+        //if((!onfloor && pl->jumping) || pl->parkourside)
         {
             vec oldpos = pl->o, dir;
             const int movements[6][2] = { { 2, 2 }, { 1, 2 }, { 1, -1 }, { 1, 1 }, { 0, 2 }, { -1, 2 } };
@@ -1835,50 +1837,68 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                 vec face = vec(collidewall).normalize();
                 if(fabs(face.z) <= 0.5f)
                 {
-                    bool parkour = pl->jumping && !onfloor && !pl->parkourside && pl->numparkour < PARKOURCOUNT && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURDELAY);
                     float yaw = 0, pitch = 0;
                     vectoyawpitch(face, yaw, pitch);
                     float off = yaw-pl->yaw;
                     if(off > 180) off -= 360;
                     else if(off < -180) off += 360;
-                    if(!pl->parkourside && pl->jumping && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY) && fabs(off) >= FACINGANGLE)
+                    if(!pl->parkourside && fabs(off) >= FACINGANGLE)
                     {
-                        bool vault = false;
-                        float space = pl->eyeheight+pl->aboveeye;
-                        pl->o.add(dir);
                         if(onfloor)
                         {
-                            pl->o.z += space*VAULTMIN;
-                            if(collide(pl))
-                            {
-                                pl->o.z += space*VAULTMAX-space*VAULTMIN;
-                                if(!collide(pl) || collideplayer) vault = true;
-                            }
-                        }
-                        else
-                        {
-                            pl->o.z += space*VAULTMAX;
-                            if(!collide(pl) || collideplayer) vault = true;
-                        }
-                        pl->o = oldpos;
-                        if(vault)
-                        {
-                            float mag = pl->vel.magnitude()+VAULTVEL;
+                            bool upwall = pl->pitch > 0 && sqrtf(pl->vel.x*pl->vel.x+pl->vel.y*pl->vel.y) >= RUNSPEED;
+                            float mag = pl->vel.magnitude();
+                            if(upwall) mag += UPWALLVEL;
                             vec rft;
-                            vecfromyawpitch(pl->yaw, 89.9f, 1, 0, rft);
+                            vecfromyawpitch(pl->yaw, upwall ? 89.9f : 0.f, 1, 0, rft);
                             rft.reflect(face);
                             pl->vel = vec(rft).mul(mag);
                             pl->falling = vec(0, 0, 0);
-                            pl->turnmillis = PARKOURMILLIS;
-                            pl->parkourside = 0;
-                            pl->turnyaw = pl->turnroll = 0;
-                            pl->lastjump = lastmillis;
-                            pl->jumping = false;
-                            game::physicstrigger(pl, local, 1, 0);
+                            pl->lastupwall = lastmillis;
                             break;
                         }
+                        else
+                        {
+                            bool vault = false;
+                            if(pl->jumping && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY))
+                            {
+                                float space = pl->eyeheight+pl->aboveeye;
+                                pl->o.add(dir);
+                                if(onfloor)
+                                {
+                                    pl->o.z += space*VAULTMIN;
+                                    if(collide(pl))
+                                    {
+                                        pl->o.z += space*VAULTMAX-space*VAULTMIN;
+                                        if(!collide(pl) || collideplayer) vault = true;
+                                    }
+                                }
+                                else
+                                {
+                                    pl->o.z += space*VAULTMAX;
+                                    if(!collide(pl) || collideplayer) vault = true;
+                                }
+                                pl->o = oldpos;
+                            }
+                            if(vault)
+                            {
+                                float mag = pl->vel.magnitude()+VAULTVEL;
+                                vec rft;
+                                vecfromyawpitch(pl->yaw, 89.9f, 1, 0, rft);
+                                rft.reflect(face);
+                                pl->vel = vec(rft).mul(mag);
+                                pl->falling = vec(0, 0, 0);
+                                pl->turnmillis = PARKOURMILLIS;
+                                pl->parkourside = 0;
+                                pl->turnyaw = pl->turnroll = 0;
+                                pl->lastjump = lastmillis;
+                                pl->jumping = false;
+                                game::physicstrigger(pl, local, 1, 0);
+                                break;
+                            }
+                        }
                     }
-                    if(pl->parkourside || parkour)
+                    if(pl->parkourside || (pl->jumping && !onfloor && pl->numparkour < PARKOURCOUNT && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURDELAY)))
                     {
                         int side = off < 0 ? -1 : 1;
                         if(off < 0) yaw += 90;
@@ -1925,7 +1945,8 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
     else
     {
         if(pl->strafe) mspeed *= STRAFESCALE;
-        if(sqrtf(pl->vel.x*pl->vel.x+pl->vel.y*pl->vel.y) >= RUNSPEED) mspeed *= RUNSCALE;
+        if(pl->move < 0) mspeed *= BACKPEDALSCALE;
+        if(onfloor && sqrtf(pl->vel.x*pl->vel.x+pl->vel.y*pl->vel.y) >= RUNSPEED) mspeed *= RUNSCALE;
     }
     d.mul(mspeed);
     if(pl->type==ENT_PLAYER)
@@ -2029,7 +2050,7 @@ bool moveplayer(physent *pl, int moveres, bool local, int curtime)
         if(timeinair > 800 && !pl->timeinair && !water) // if we land after long time must have been a high jump, make thud sound
             game::physicstrigger(pl, local, -1, 0);
         if(!pl->parkourside && timeinair && !pl->timeinair)
-            pl->lastparkour = pl->lastjump = pl->numparkour = 0;
+            pl->lastparkour = pl->lastjump = pl->lastupwall = pl->numparkour = 0;
     }
 
     if(pl->state==CS_ALIVE) updatedynentcache(pl);

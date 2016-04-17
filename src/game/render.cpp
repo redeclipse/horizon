@@ -227,39 +227,40 @@ namespace game
             else if(d->physstate == PHYS_FALL && d->timeinair >= 50)
             {
                 basetime2 = lastmillis-d->timeinair;
-                if(d->lastjump && lastmillis-d->lastjump < JUMPDELAY/2)
+                bool jump = (d->lastjump && lastmillis-d->lastjump < JUMPDELAY/2), upwall = (d->lastupwall && lastmillis-d->lastupwall < JUMPDELAY);
+                if(jump || upwall)
                 {
                     anim |= (ANIM_WALL_JUMP|ANIM_LOOP)<<ANIM_SECONDARY;
-                    basetime2 = d->lastjump;
+                    basetime2 = jump ? d->lastjump : d->lastupwall;
                 }
                 if(d->crouching)
                 {
-                    if(d->move>0) anim |= ANIM_CROUCH_JUMP_FORWARD<<ANIM_SECONDARY;
-                    else if(d->strafe) anim |= (d->strafe>0 ? ANIM_CROUCH_JUMP_LEFT : ANIM_CROUCH_JUMP_RIGHT)<<ANIM_SECONDARY;
+                    if(d->strafe) anim |= (d->strafe>0 ? ANIM_CROUCH_JUMP_LEFT : ANIM_CROUCH_JUMP_RIGHT)<<ANIM_SECONDARY;
+                    else if(d->move>0) anim |= ANIM_CROUCH_JUMP_FORWARD<<ANIM_SECONDARY;
                     else if(d->move<0) anim |= ANIM_CROUCH_JUMP_BACKWARD<<ANIM_SECONDARY;
                     else anim |= ANIM_CROUCH_JUMP<<ANIM_SECONDARY;
                 }
-                else if(d->move>0) anim |= ANIM_JUMP_FORWARD<<ANIM_SECONDARY;
                 else if(d->strafe) anim |= (d->strafe>0 ? ANIM_JUMP_LEFT : ANIM_JUMP_RIGHT)<<ANIM_SECONDARY;
+                else if(d->move>0) anim |= ANIM_JUMP_FORWARD<<ANIM_SECONDARY;
                 else if(d->move<0) anim |= ANIM_JUMP_BACKWARD<<ANIM_SECONDARY;
                 else anim |= ANIM_JUMP<<ANIM_SECONDARY;
                 if(!basetime2) anim |= ANIM_END<<ANIM_SECONDARY;
             }
             else if(d->crouching)
             {
-                if(d->move>0) anim |= (ANIM_CRAWL_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
-                else if(d->strafe) anim |= ((d->strafe>0 ? ANIM_CRAWL_LEFT : ANIM_CRAWL_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
+                if(d->strafe) anim |= ((d->strafe>0 ? ANIM_CRAWL_LEFT : ANIM_CRAWL_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
+                else if(d->move>0) anim |= (ANIM_CRAWL_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
                 else if(d->move<0) anim |= (ANIM_CRAWL_BACKWARD|ANIM_LOOP)<<ANIM_SECONDARY;
                 else anim |= (ANIM_CROUCH|ANIM_LOOP)<<ANIM_SECONDARY;
             }
             else if(sqrtf(d->vel.x*d->vel.x+d->vel.y*d->vel.y) >= RUNSPEED)
             {
-                if(d->move>0) anim |= (ANIM_RUN_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
-                else if(d->strafe) anim |= ((d->strafe>0 ? ANIM_RUN_LEFT : ANIM_RUN_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
+                if(d->strafe) anim |= ((d->strafe>0 ? ANIM_RUN_LEFT : ANIM_RUN_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
+                else if(d->move>0) anim |= (ANIM_RUN_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
                 else if(d->move<0) anim |= (ANIM_RUN_BACKWARD|ANIM_LOOP)<<ANIM_SECONDARY;
             }
-            else if(d->move>0) anim |= (ANIM_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
             else if(d->strafe) anim |= ((d->strafe>0 ? ANIM_LEFT : ANIM_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
+            else if(d->move>0) anim |= (ANIM_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
             else if(d->move<0) anim |= (ANIM_BACKWARD|ANIM_LOOP)<<ANIM_SECONDARY;
 
             if((anim&ANIM_INDEX)==ANIM_IDLE && (anim>>ANIM_SECONDARY)&ANIM_INDEX) anim >>= ANIM_SECONDARY;

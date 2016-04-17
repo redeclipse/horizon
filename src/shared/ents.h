@@ -62,7 +62,7 @@ struct physent                                  // base entity type, can be affe
     float yaw, pitch, roll;
     float maxspeed;                             // cubes per second, 100 for player
     int timeinair, parkourside, turnmillis;
-    int lastparkour, lastjump, numparkour;
+    int lastparkour, lastjump, lastupwall, numparkour;
     float turnyaw, turnroll;
     float radius, eyeheight, maxheight, aboveeye; // bounding box size
     float xradius, yradius, zmargin;
@@ -98,7 +98,7 @@ struct physent                                  // base entity type, can be affe
         timeinair = 0;
         parkourside = turnmillis = 0;
         turnyaw = turnroll = 0;
-        lastparkour = lastjump = numparkour = 0;
+        lastparkour = lastjump = lastupwall = numparkour = 0;
         eyeheight = maxheight;
         jumping = false;
         strafe = move = crouching = 0;
