@@ -230,12 +230,12 @@ static struct itemstat { int add, max, sound; const char *name; int icon, info; 
 
 static const struct attackinfo { int weap, action, anim, vwepanim, hudanim, sound, hudsound, attackdelay, damage, spread, margin, projspeed, kickamount, range, rays, hitpush, exprad, ttl, use; } attacks[NUMATKS] =
 {
-    { WEAP_NONE,  ACT_MELEE, ANIM_MELEE, ANIM_VWEP_MELEE, ANIM_WEAP_MELEE, S_MELEE,  S_MELEE,  500, 1, 0, 2,    0,  0,   14, 1,    0,  0, 0, 0 },
-    { WEAP_NONE,  ACT_MELEE, ANIM_MELEE, ANIM_VWEP_MELEE, ANIM_WEAP_MELEE, S_MELEE,  S_MELEE,  500, 1, 0, 2,    0,  0,   14, 1,    0,  0, 0, 0 },
-    { WEAP_RAIL,  ACT_SHOOT, ANIM_SHOOT, ANIM_VWEP_SHOOT, ANIM_WEAP_SHOOT, S_RAIL1,  S_RAIL2, 1300, 1, 0, 0,    0, 30, 2048, 1, 5000,  0, 0, 0 },
-    { WEAP_RAIL,  ACT_MELEE, ANIM_MELEE, ANIM_VWEP_MELEE, ANIM_WEAP_MELEE, S_MELEE,  S_MELEE,  500, 1, 0, 2,    0,  0,   14, 1,    0,  0, 0, 0 },
-    { WEAP_PULSE, ACT_SHOOT, ANIM_SHOOT, ANIM_VWEP_SHOOT, ANIM_WEAP_SHOOT, S_PULSE1, S_PULSE2, 700, 1, 0, 1, 1000, 30, 1024, 1, 5000, 15, 0, 0 },
-    { WEAP_PULSE, ACT_MELEE, ANIM_MELEE, ANIM_VWEP_MELEE, ANIM_WEAP_MELEE, S_MELEE,  S_MELEE,  500, 1, 0, 2,    0,  0,   14, 1,    0,  0, 0, 0 }
+    { WEAP_NONE,  ACT_MELEE, ANIM_MELEE, ANIM_VWEP_MELEE, ANIM_WEAP_MELEE, S_MELEE,  S_MELEE,  500, 20,  0, 2,    0,  0,   14, 1,    0,  0, 0, 0 },
+    { WEAP_NONE,  ACT_MELEE, ANIM_MELEE, ANIM_VWEP_MELEE, ANIM_WEAP_MELEE, S_MELEE,  S_MELEE,  500, 20,  0, 2,    0,  0,   14, 1,    0,  0, 0, 0 },
+    { WEAP_RAIL,  ACT_SHOOT, ANIM_SHOOT, ANIM_VWEP_SHOOT, ANIM_WEAP_SHOOT, S_RAIL1,  S_RAIL2, 1300, 75,  0, 0,    0, 30, 2048, 1, 5000,  0, 0, 0 },
+    { WEAP_RAIL,  ACT_MELEE, ANIM_MELEE, ANIM_VWEP_MELEE, ANIM_WEAP_MELEE, S_MELEE,  S_MELEE,  500, 20,  0, 2,    0,  0,   14, 1,    0,  0, 0, 0 },
+    { WEAP_PULSE, ACT_SHOOT, ANIM_SHOOT, ANIM_VWEP_SHOOT, ANIM_WEAP_SHOOT, S_PULSE1, S_PULSE2, 700, 40,  1, 1, 1000, 30, 1024, 1, 5000, 15, 0, 0 },
+    { WEAP_PULSE, ACT_MELEE, ANIM_MELEE, ANIM_VWEP_MELEE, ANIM_WEAP_MELEE, S_MELEE,  S_MELEE,  500, 20,  0, 2,    0,  0,   14, 1,    0,  0, 0, 0 }
 };
 
 static const struct weapinfo { const char *name, *model; int attacks[NUMACTS]; } weaps[NUMWEAPS] =
@@ -255,7 +255,7 @@ struct gamestate
     int ammo[NUMWEAPS];
     int aitype, skill;
 
-    gamestate() : maxhealth(1), aitype(AI_NONE), skill(0) {}
+    gamestate() : maxhealth(100), aitype(AI_NONE), skill(0) {}
 
     bool canpickup(int type)
     {
@@ -354,7 +354,6 @@ struct gameent : dynent, gamestate
     {
         frags = flags = deaths = 0;
         totaldamage = totalshots = 0;
-        maxhealth = 1;
         lifesequence = -1;
         respawned = suicided = -2;
     }

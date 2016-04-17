@@ -599,20 +599,6 @@ namespace game
     }
     ICOMMAND(suicide, "", (), suicide(player1));
 
-    void drawicon(int icon, float x, float y, float sz)
-    {
-        settexture("media/interface/hud/items.png");
-        float tsz = 0.25f, tx = tsz*(icon%4), ty = tsz*(icon/4);
-        gle::defvertex(2);
-        gle::deftexcoord0();
-        gle::begin(GL_TRIANGLE_STRIP);
-        gle::attribf(x,    y);    gle::attribf(tx,     ty);
-        gle::attribf(x+sz, y);    gle::attribf(tx+tsz, ty);
-        gle::attribf(x,    y+sz); gle::attribf(tx,     ty+tsz);
-        gle::attribf(x+sz, y+sz); gle::attribf(tx+tsz, ty+tsz);
-        gle::end();
-    }
-
     float abovegameplayhud(int w, int h)
     {
         switch(hudplayer()->state)
@@ -630,20 +616,9 @@ namespace game
 #if 0
         pushhudscale(2);
 
-        draw_textf("%d", (HICON_X + HICON_SIZE + HICON_SPACE)/2, HICON_TEXTY/2, d->state==CS_DEAD ? 0 : d->health);
-        if(d->state!=CS_DEAD)
-        {
-            draw_textf("%d", (HICON_X + 2*HICON_STEP + HICON_SIZE + HICON_SPACE)/2, HICON_TEXTY/2, d->ammo[d->weapselect]);
-        }
-
         pophudmatrix();
         resethudshader();
 
-        drawicon(HICON_HEALTH, HICON_X, HICON_Y);
-        if(d->state!=CS_DEAD)
-        {
-            drawicon(HICON_MELEE+d->weapselect, HICON_X + 2*HICON_STEP, HICON_Y);
-        }
 #endif
     }
 
@@ -694,8 +669,8 @@ namespace game
     {
         switch(index)
         {
-            case 1: return "media/interface/crosshair/default_hit.png";
-            default: return "media/interface/crosshair/default.png";
+            case 1: return "media/interface/crosshair/dot_normal_hit.png";
+            default: return "media/interface/crosshair/dot_normal.png";
         }
     }
 
@@ -729,29 +704,17 @@ namespace game
             const char *name = server::modeprettyname(mode, NULL);
             if(name) result(name);
         }));
-    ICOMMAND(servinfomastermode, "i", (int *i), GETSERVINFOATTR(*i, 2, mm, intret(mm)));
+    ICOMMAND(servinfomastermode, "i", (int *i), GETSERVINFOATTR(*i, 1, mm, intret(mm)));
     ICOMMAND(servinfomastermodename, "i", (int *i),
-        GETSERVINFOATTR(*i, 2, mm,
+        GETSERVINFOATTR(*i, 1, mm,
         {
             const char *name = server::mastermodename(mm, NULL);
             if(name) stringret(newconcatstring(mastermodecolor(mm, ""), name));
         }));
-    ICOMMAND(servinfotime, "ii", (int *i, int *raw),
-        GETSERVINFOATTR(*i, 1, secs,
-        {
-            secs = clamp(secs, 0, 59*60+59);
-            if(*raw) intret(secs);
-            else
-            {
-                int mins = secs/60;
-                secs %= 60;
-                result(tempformatstring("%d:%02d", mins, secs));
-            }
-        }));
     ICOMMAND(servinfoicon, "i", (int *i),
         GETSERVINFO(*i, si,
         {
-            int mm = si->attr.inrange(2) ? si->attr[2] : MM_INVALID;
+            int mm = si->attr.inrange(1) ? si->attr[1] : MM_INVALID;
             result(si->maxplayers > 0 && si->numplayers >= si->maxplayers ? "serverfull" : mastermodeicon(mm, "serverunk"));
         }));
 
