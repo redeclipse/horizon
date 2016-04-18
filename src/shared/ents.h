@@ -45,15 +45,19 @@ struct extentity : entity                       // part of the entity that doesn
 //extern vector<extentity *> ents;                // map entities
 
 enum { CS_ALIVE = 0, CS_DEAD, CS_SPAWNING, CS_LAGGED, CS_EDITING, CS_SPECTATOR };
-
 enum { PHYS_FLOAT = 0, PHYS_FALL, PHYS_SLIDE, PHYS_SLOPE, PHYS_FLOOR, PHYS_STEP_UP, PHYS_STEP_DOWN, PHYS_BOUNCE };
-
 enum { ENT_PLAYER = 0, ENT_CAMERA, ENT_BOUNCE };
-
 enum { COLLIDE_NONE = 0, COLLIDE_ELLIPSE, COLLIDE_OBB, COLLIDE_TRI };
 
-#define CROUCHTIME 200
-#define CROUCHHEIGHT 0.75f
+extern float STAIRHEIGHT, FLOORZ, SLOPEZ, WALLZ;
+extern float JUMPVEL, LONGJUMPVEL, GRAVITY, PARKOURVEL, KICKVEL, VAULTVEL, UPWALLVEL, SLIDEVEL;
+extern float VAULTMIN, VAULTMAX, FACINGANGLE;
+extern int JUMPDELAY, PARKOURDELAY, PARKOURMILLIS, PARKOURLENGTH, PARKOURCOUNT, SLIDETIME, SLIDEDELAY;
+extern float PARKOURANGLE, LONGJUMPMIN, LONGJUMPMAX;
+extern float LIQUIDSPEED, STRAFESCALE, BACKPEDALSCALE, RUNSPEED, SLIDESPEED, RUNSCALE, PARKOURSCALE;
+extern float WATERFRIC, FLOORFRIC, AIRFRIC, PARKOURFRIC, SLIDEFRIC;
+extern int CROUCHTIME;
+extern float CROUCHHEIGHT;
 
 struct physent                                  // base entity type, can be affected by physics
 {
@@ -62,7 +66,7 @@ struct physent                                  // base entity type, can be affe
     float yaw, pitch, roll;
     float maxspeed;                             // cubes per second, 100 for player
     int timeinair, parkourside, turnmillis;
-    int lastparkour, lastjump, lastupwall, numparkour;
+    int lastparkour, lastjump, lastupwall, lastslide, numparkour;
     float turnyaw, turnroll;
     float radius, eyeheight, maxheight, aboveeye; // bounding box size
     float xradius, yradius, zmargin;
@@ -98,7 +102,7 @@ struct physent                                  // base entity type, can be affe
         timeinair = 0;
         parkourside = turnmillis = 0;
         turnyaw = turnroll = 0;
-        lastparkour = lastjump = lastupwall = numparkour = 0;
+        lastparkour = lastjump = lastupwall = lastslide = numparkour = 0;
         eyeheight = maxheight;
         jumping = false;
         strafe = move = crouching = 0;
@@ -111,6 +115,8 @@ struct physent                                  // base entity type, can be affe
     vec headpos(float offset = 0) const { return vec(o).addz(offset); }
 
     bool crouched() const { return fabs(eyeheight - maxheight*CROUCHHEIGHT) < 1e-4f; }
+    bool sliding(int millis, int delay) const { return crouching && physstate >= PHYS_SLOPE && lastslide && millis-lastslide <= delay; }
+    bool velxychk(float speed) const { return sqrtf(vel.x*vel.x+vel.y*vel.y) >= speed; }
 };
 
 enum

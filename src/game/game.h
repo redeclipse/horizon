@@ -13,7 +13,7 @@ enum
     ANIM_JUMP_FORWARD, ANIM_JUMP_BACKWARD, ANIM_JUMP_LEFT, ANIM_JUMP_RIGHT, ANIM_JUMP,
     ANIM_CROUCH, ANIM_CRAWL_FORWARD, ANIM_CRAWL_BACKWARD, ANIM_CRAWL_LEFT, ANIM_CRAWL_RIGHT,
     ANIM_CROUCH_JUMP_FORWARD, ANIM_CROUCH_JUMP_BACKWARD, ANIM_CROUCH_JUMP_LEFT, ANIM_CROUCH_JUMP_RIGHT, ANIM_CROUCH_JUMP,
-    ANIM_WALL_RUN_LEFT, ANIM_WALL_RUN_RIGHT, ANIM_WALL_JUMP,
+    ANIM_WALL_RUN_LEFT, ANIM_WALL_RUN_RIGHT, ANIM_WALL_JUMP, ANIM_SLIDE,
     ANIM_SWIM, ANIM_SINK, ANIM_SHOOT, ANIM_MELEE, ANIM_PAIN, ANIM_EDIT,
     ANIM_WEAP_IDLE, ANIM_WEAP_SHOOT, ANIM_WEAP_MELEE,
     ANIM_VWEP_IDLE, ANIM_VWEP_SHOOT, ANIM_VWEP_MELEE,
@@ -28,7 +28,7 @@ static const char * const animnames[] =
     "jump forward", "jump backward", "jump left", "jump right", "jump",
     "crouch", "crawl forward", "crawl backward", "crawl left", "crawl right",
     "crouch jump forward", "crouch jump backward", "crouch jump left", "crouch jump right", "crouch jump",
-    "wall run left", "wall run right", "wall jump",
+    "wall run left", "wall run right", "wall jump", "slide",
     "swim", "sink", "shoot", "melee", "pain", "edit",
     "weap idle", "weap shoot", "weap melee",
     "vwep idle", "vwep shoot", "vwep melee"

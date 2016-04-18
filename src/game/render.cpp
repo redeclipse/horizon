@@ -246,6 +246,11 @@ namespace game
                 else anim |= ANIM_JUMP<<ANIM_SECONDARY;
                 if(!basetime2) anim |= ANIM_END<<ANIM_SECONDARY;
             }
+            else if(d->sliding(lastmillis, SLIDETIME))
+            {
+                basetime2 = d->lastslide;
+                anim |= (ANIM_SLIDE|ANIM_LOOP)<<ANIM_SECONDARY;
+            }
             else if(d->crouching)
             {
                 if(d->strafe) anim |= ((d->strafe>0 ? ANIM_CRAWL_LEFT : ANIM_CRAWL_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
@@ -253,7 +258,7 @@ namespace game
                 else if(d->move<0) anim |= (ANIM_CRAWL_BACKWARD|ANIM_LOOP)<<ANIM_SECONDARY;
                 else anim |= (ANIM_CROUCH|ANIM_LOOP)<<ANIM_SECONDARY;
             }
-            else if(sqrtf(d->vel.x*d->vel.x+d->vel.y*d->vel.y) >= RUNSPEED)
+            else if(d->velxychk(RUNSPEED))
             {
                 if(d->strafe) anim |= ((d->strafe>0 ? ANIM_RUN_LEFT : ANIM_RUN_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
                 else if(d->move>0) anim |= (ANIM_RUN_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
@@ -263,7 +268,11 @@ namespace game
             else if(d->move>0) anim |= (ANIM_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
             else if(d->move<0) anim |= (ANIM_BACKWARD|ANIM_LOOP)<<ANIM_SECONDARY;
 
-            if((anim&ANIM_INDEX)==ANIM_IDLE && (anim>>ANIM_SECONDARY)&ANIM_INDEX) anim >>= ANIM_SECONDARY;
+            if((anim&ANIM_INDEX)==ANIM_IDLE && (anim>>ANIM_SECONDARY)&ANIM_INDEX)
+            {
+                anim >>= ANIM_SECONDARY;
+                swap(basetime, basetime2);
+            }
         }
         if(!((anim>>ANIM_SECONDARY)&ANIM_INDEX)) anim |= (ANIM_IDLE|ANIM_LOOP)<<ANIM_SECONDARY;
         if(d != player1) flags |= MDL_CULL_VFC | MDL_CULL_OCCLUDED | MDL_CULL_QUERY;

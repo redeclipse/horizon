@@ -12,11 +12,13 @@ float SLOPEZ = 0.5f;
 float WALLZ = 0.2f;
 
 float JUMPVEL = 150;
+float LONGJUMPVEL = 200;
 float GRAVITY = 150;
 float PARKOURVEL = 10;
 float KICKVEL = 50;
 float VAULTVEL = 125;
 float UPWALLVEL = 45;
+float SLIDEVEL = 20;
 
 float VAULTMIN = 0.25f;
 float VAULTMAX = 1.6f;
@@ -26,15 +28,18 @@ int JUMPDELAY = 500;
 int PARKOURDELAY = 500;
 int PARKOURMILLIS = 200;
 int PARKOURLENGTH = 750;
-int PARKOURGRAVDELAY = 100;
 int PARKOURCOUNT = 2;
 float PARKOURANGLE = 20;
-float PARKOURGRIP = 0.8f;
+float LONGJUMPMIN = 20;
+float LONGJUMPMAX = 45;
+int SLIDEDELAY = 1000;
+int SLIDETIME = 500;
 
 float LIQUIDSPEED = 0.85f;
 float STRAFESCALE = 0.75f;
 float BACKPEDALSCALE = 0.65f;
 float RUNSPEED = 99;
+float SLIDESPEED = 75;
 float RUNSCALE = 1.5f;
 float PARKOURSCALE = 1.25f;
 
@@ -42,6 +47,11 @@ float WATERFRIC = 15;
 float FLOORFRIC = 10;
 float AIRFRIC = 20;
 float PARKOURFRIC = 12;
+float SLIDEFRIC = 15;
+
+int CROUCHTIME = 200;
+float CROUCHHEIGHT = 0.75f;
+float CROUCHSCALE = 0.5f;
 
 const int MAXCLIPPLANES = 1024;
 
@@ -1530,8 +1540,8 @@ bool move(physent *d, vec &dir)
 void crouchplayer(physent *pl, int moveres, bool local)
 {
     if(!curtime) return;
-    float minheight = pl->maxheight * CROUCHHEIGHT, speed = (pl->maxheight - minheight) * curtime / float(CROUCHTIME);
-    if(pl->crouching < 0)
+    float minheight = pl->maxheight*CROUCHHEIGHT, speed = (pl->maxheight - minheight)*curtime/float(CROUCHTIME);
+    if(pl->crouching < 0 || pl->sliding(lastmillis, SLIDETIME))
     {
         if(pl->eyeheight > minheight)
         {
@@ -1792,9 +1802,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
             if(pl->jumping && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY))
             {
                 float mag = pl->vel.magnitude()+KICKVEL;
-                vec rft;
-                vecfromyawpitch(pl->yaw, pl->pitch, 1, 0, rft);
-                pl->vel = vec(rft).mul(mag);
+                pl->vel = vec(pl->yaw*RAD, pl->pitch*RAD).mul(mag);
                 pl->falling = vec(0, 0, 0);
                 pl->turnmillis = PARKOURMILLIS;
                 pl->parkourside = 0;
@@ -1808,12 +1816,19 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
         {
             if(onfloor && pl->jumping)
             {
-                pl->vel.z += JUMPVEL;
+                if(pl->sliding(lastmillis, SLIDETIME))
+                {
+                    float mag = pl->vel.magnitude()+LONGJUMPVEL;
+                    pl->vel = vec(pl->yaw*RAD, clamp(pl->pitch, LONGJUMPMIN, LONGJUMPMAX)*RAD).mul(mag);
+                    //pl->crouching = 0;
+                }
+                else pl->vel.z += JUMPVEL;
                 if(water)
                 {
                     pl->vel.x *= LIQUIDSPEED;
                     pl->vel.y *= LIQUIDSPEED;
                 }
+                pl->falling = vec(0, 0, 0);
                 pl->jumping = onfloor = false;
                 game::physicstrigger(pl, local, 1, 0);
             }
@@ -1846,16 +1861,14 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                     {
                         if(onfloor)
                         {
-                            bool upwall = pl->pitch > 0 && sqrtf(pl->vel.x*pl->vel.x+pl->vel.y*pl->vel.y) >= RUNSPEED;
-                            float mag = pl->vel.magnitude();
-                            if(upwall) mag += UPWALLVEL;
-                            vec rft;
-                            vecfromyawpitch(pl->yaw, upwall ? 89.9f : 0.f, 1, 0, rft);
-                            rft.reflect(face);
-                            pl->vel = vec(rft).mul(mag);
-                            pl->falling = vec(0, 0, 0);
-                            pl->lastupwall = lastmillis;
-                            break;
+                            if(pl->velxychk(RUNSPEED))
+                            {
+                                float mag = pl->vel.magnitude()+UPWALLVEL;
+                                pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).reflect(face).mul(mag);
+                                pl->falling = vec(0, 0, 0);
+                                pl->lastupwall = lastmillis;
+                                break;
+                            }
                         }
                         else
                         {
@@ -1883,10 +1896,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                             if(vault)
                             {
                                 float mag = pl->vel.magnitude()+VAULTVEL;
-                                vec rft;
-                                vecfromyawpitch(pl->yaw, 89.9f, 1, 0, rft);
-                                rft.reflect(face);
-                                pl->vel = vec(rft).mul(mag);
+                                pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).mul(mag);
                                 pl->falling = vec(0, 0, 0);
                                 pl->turnmillis = PARKOURMILLIS;
                                 pl->parkourside = 0;
@@ -1905,8 +1915,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                         else yaw -= 90;
                         while(yaw >= 360) yaw -= 360;
                         while(yaw < 0) yaw += 360;
-                        vec rft;
-                        vecfromyawpitch(yaw, 0.f, 1, 0, rft);
+                        vec rft(yaw*RAD, 0.f);
                         if(!pl->parkourside)
                         {
                             float mag = pl->vel.magnitude()+PARKOURVEL;
@@ -1946,7 +1955,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
     {
         if(pl->strafe) mspeed *= STRAFESCALE;
         if(pl->move < 0) mspeed *= BACKPEDALSCALE;
-        if(onfloor && sqrtf(pl->vel.x*pl->vel.x+pl->vel.y*pl->vel.y) >= RUNSPEED) mspeed *= RUNSCALE;
+        if(onfloor && pl->velxychk(RUNSPEED)) mspeed *= RUNSCALE;
     }
     d.mul(mspeed);
     if(pl->type==ENT_PLAYER)
@@ -1955,9 +1964,9 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
         {
             if(pl == player) d.mul(floatspeed/100.0f);
         }
-        else if(pl->crouching) d.mul(0.4f);
+        else if(pl->crouching && (!pl->lastslide || lastmillis-pl->lastslide > SLIDETIME)) d.mul(CROUCHSCALE);
     }
-    float fric = water && !floating ? WATERFRIC : (pl->parkourside ? PARKOURFRIC : (pl->physstate >= PHYS_SLOPE || floating ? FLOORFRIC : AIRFRIC));
+    float fric = water && !floating ? WATERFRIC : (pl->parkourside ? PARKOURFRIC : (pl->physstate >= PHYS_SLOPE || floating ? (pl->sliding(lastmillis, SLIDETIME) ? SLIDEFRIC : FLOORFRIC) : AIRFRIC));
     pl->vel.lerp(d, pl->vel, pow(1 - 1/fric, curtime/20.0f));
 }
 
@@ -1970,7 +1979,7 @@ void modifygravity(physent *pl, bool water, int curtime)
         float scale = GRAVITY*secs;
         if(pl->parkourside)
         {
-            if(pl->numparkour > 1 || !pl->lastparkour || lastmillis-pl->lastparkour > PARKOURGRAVDELAY) scale *= PARKOURGRIP;
+            if(pl->lastparkour) scale *= float(lastmillis-pl->lastparkour)/PARKOURDELAY;
             else scale = 0;
         }
         g.z -= scale;
@@ -1996,16 +2005,16 @@ void modifygravity(physent *pl, bool water, int curtime)
 // moveres indicated the physics precision (which is lower for monsters and multiplayer prediction)
 // local is false for multiplayer prediction
 template<class T>
-static inline void adjustscaled(T &n, int s)
+static inline void adjustscaled(T &n, int s, int c)
 {
     if(n > 0)
     {
-        n = (T)(n/(1.f+sqrtf((float)curtime)/float(s)));
+        n = (T)(n/(1.f+sqrtf((float)c)/float(s)));
         if(n <= 0) n = (T)0;
     }
     else if(n < 0)
     {
-        n = (T)(n/(1.f+sqrtf((float)curtime)/float(s)));
+        n = (T)(n/(1.f+sqrtf((float)c)/float(s)));
         if(n >= 0) n = (T)0;
     }
 }
@@ -2047,10 +2056,20 @@ bool moveplayer(physent *pl, int moveres, bool local, int curtime)
 
         d.mul(f);
         loopi(moveres) if(!move(pl, d) && ++collisions<5) i--; // discrete steps collision detection & sliding
-        if(timeinair > 800 && !pl->timeinair && !water) // if we land after long time must have been a high jump, make thud sound
-            game::physicstrigger(pl, local, -1, 0);
-        if(!pl->parkourside && timeinair && !pl->timeinair)
-            pl->lastparkour = pl->lastjump = pl->lastupwall = pl->numparkour = 0;
+        if(timeinair && !pl->timeinair)
+        {
+            pl->parkourside = pl->lastparkour = pl->lastjump = pl->lastupwall = pl->numparkour = 0;
+            if(timeinair > 800 && !water) // if we land after long time must have been a high jump, make thud sound
+                game::physicstrigger(pl, local, -1, 0);
+        }
+        if(!pl->timeinair && !water && pl->crouching < 0 && pl->physstate >= PHYS_SLOPE && (!pl->lastslide || lastmillis-pl->lastslide > SLIDEDELAY) && pl->velxychk(SLIDESPEED))
+        {
+            float mag = pl->vel.magnitude()+SLIDEVEL;
+            pl->vel = vec(pl->yaw*RAD, 0.f).mul(mag);
+            pl->falling = vec(0, 0, 0);
+            pl->lastslide = lastmillis;
+            game::physicstrigger(pl, local, 1, 0);
+        }
     }
 
     if(pl->state==CS_ALIVE) updatedynentcache(pl);
@@ -2075,7 +2094,7 @@ bool moveplayer(physent *pl, int moveres, bool local, int curtime)
     else
     {
         pl->turnmillis = 0;
-        if(pl->roll != 0 && !pl->parkourside) adjustscaled(pl->roll, PARKOURMILLIS/2);
+        if(pl->roll != 0 && !pl->parkourside) adjustscaled(pl->roll, PARKOURMILLIS/2, curtime);
     }
 
     return true;
