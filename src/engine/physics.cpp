@@ -2058,10 +2058,11 @@ bool moveplayer(physent *pl, int moveres, bool local, int curtime)
         loopi(moveres) if(!move(pl, d) && ++collisions<5) i--; // discrete steps collision detection & sliding
         if(timeinair && !pl->timeinair)
         {
-            pl->parkourside = pl->lastparkour = pl->lastjump = pl->lastupwall = pl->numparkour = 0;
             if(timeinair > 800 && !water) // if we land after long time must have been a high jump, make thud sound
                 game::physicstrigger(pl, local, -1, 0);
         }
+        else if(!timeinair && pl->timeinair) pl->parkourside = pl->lastparkour = pl->lastjump = pl->lastupwall = pl->numparkour = 0;
+
         if(!pl->timeinair && !water && pl->crouching < 0 && pl->physstate >= PHYS_SLOPE && (!pl->lastslide || lastmillis-pl->lastslide > SLIDEDELAY) && pl->velxychk(SLIDESPEED))
         {
             float mag = pl->vel.magnitude()+SLIDEVEL;
