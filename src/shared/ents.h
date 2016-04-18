@@ -53,7 +53,7 @@ extern float STAIRHEIGHT, FLOORZ, SLOPEZ, WALLZ;
 extern float JUMPVEL, LONGJUMPVEL, GRAVITY, PARKOURVEL, KICKVEL, VAULTVEL, UPWALLVEL, SLIDEVEL;
 extern float VAULTMIN, VAULTMAX, FACINGANGLE;
 extern int JUMPDELAY, PARKOURMILLIS, PARKOURLENGTH, PARKOURCOUNT, SLIDETIME, SLIDEDELAY;
-extern float PARKOURROLL, PARKOURPITCH, LONGJUMPMIN, LONGJUMPMAX;
+extern float PARKOURROLL, PARKOURPITCH, LONGJUMPMIN, LONGJUMPMAX, KICKMAX;
 extern float LIQUIDSPEED, STRAFESCALE, BACKPEDALSCALE, RUNSPEED, SLIDESPEED, RUNSCALE, PARKOURSCALE;
 extern float WATERFRIC, FLOORFRIC, AIRFRIC, PARKOURFRIC, SLIDEFRIC;
 extern int CROUCHTIME;
@@ -84,7 +84,7 @@ struct physent                                  // base entity type, can be affe
     bool blocked;                               // used by physics to signal ai
 
     physent() : o(0, 0, 0), deltapos(0, 0, 0), newpos(0, 0, 0), yaw(0), pitch(0), roll(0), maxspeed(100),
-               radius(4.1f), eyeheight(14), maxheight(14), aboveeye(1), xradius(3), yradius(3), zmargin(0),
+               radius(3), eyeheight(16), maxheight(16), aboveeye(1), xradius(3), yradius(3), zmargin(0),
                state(CS_ALIVE), editstate(CS_ALIVE), type(ENT_PLAYER),
                collidetype(COLLIDE_ELLIPSE),
                blocked(false)

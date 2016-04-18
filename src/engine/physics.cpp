@@ -11,17 +11,18 @@ float FLOORZ = 0.867f;
 float SLOPEZ = 0.5f;
 float WALLZ = 0.2f;
 
-float JUMPVEL = 150;
+float JUMPVEL = 75;
 float LONGJUMPVEL = 200;
 float GRAVITY = 200;
 float PARKOURVEL = 10;
 float KICKVEL = 50;
 float VAULTVEL = 125;
-float UPWALLVEL = 45;
+float UPWALLVEL = 50;
 float SLIDEVEL = 20;
 
 float VAULTMIN = 0.25f;
 float VAULTMAX = 1.6f;
+float KICKMAX = 35;
 float FACINGANGLE = 150;
 
 int JUMPDELAY = 500;
@@ -36,12 +37,12 @@ int SLIDEDELAY = 2000;
 int SLIDETIME = 500;
 
 float LIQUIDSPEED = 0.85f;
-float STRAFESCALE = 0.75f;
-float BACKPEDALSCALE = 0.65f;
+float STRAFESCALE = 0.8f;
+float BACKPEDALSCALE = 0.75f;
 float RUNSPEED = 99;
 float SLIDESPEED = 75;
-float RUNSCALE = 1.5f;
-float PARKOURSCALE = 1.25f;
+float RUNSCALE = 1.3f;
+float PARKOURSCALE = 1.2f;
 
 float WATERFRIC = 18;
 float FLOORFRIC = 10;
@@ -49,8 +50,8 @@ float AIRFRIC = 22;
 float PARKOURFRIC = 12;
 float SLIDEFRIC = 16;
 
-int CROUCHTIME = 200;
-float CROUCHHEIGHT = 0.75f;
+int CROUCHTIME = 100;
+float CROUCHHEIGHT = 0.65f;
 float CROUCHSCALE = 0.5f;
 
 const int MAXCLIPPLANES = 1024;
@@ -1796,7 +1797,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
             if(pl->jumping && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY))
             {
                 float mag = pl->vel.magnitude()+KICKVEL;
-                pl->vel = vec(pl->yaw*RAD, pl->pitch*RAD).mul(mag);
+                pl->vel = vec(pl->yaw*RAD, min(pl->pitch, KICKMAX)*RAD).mul(mag);
                 pl->falling = vec(0, 0, 0);
                 pl->turnmillis = PARKOURMILLIS;
                 pl->parkourside = 0;
@@ -1815,9 +1816,14 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                 {
                     float mag = pl->vel.magnitude()+LONGJUMPVEL;
                     pl->vel = vec(pl->yaw*RAD, clamp(pl->pitch, LONGJUMPMIN, LONGJUMPMAX)*RAD).mul(mag);
-                    //pl->crouching = 0;
                 }
-                else pl->vel.z += JUMPVEL;
+                else
+                {
+                    float mag = pl->vel.magnitude()+JUMPVEL;
+                    vec dir;
+                    vecfromyawpitch(pl->yaw, pl->move ? 45.f : 89.9f, pl->move ? pl->move : 1, pl->strafe, dir);
+                    pl->vel = vec(dir).mul(mag);
+                }
                 if(water)
                 {
                     pl->vel.x *= LIQUIDSPEED;
@@ -1905,7 +1911,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                             }
                         }
                     }
-                    if(pl->parkourside || (!facing && pl->jumping && !onfloor && pl->numparkour < PARKOURCOUNT && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURLENGTH)))
+                    if(pl->parkourside || (!facing && pl->jumping && !onfloor && pl->numparkour < PARKOURCOUNT && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURLENGTH) && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY)))
                     {
                         int side = off < 0 ? -1 : 1;
                         if(off < 0) yaw += 90;
