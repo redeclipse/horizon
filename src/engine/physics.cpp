@@ -13,7 +13,7 @@ float WALLZ = 0.2f;
 
 float JUMPVEL = 150;
 float LONGJUMPVEL = 200;
-float GRAVITY = 150;
+float GRAVITY = 200;
 float PARKOURVEL = 10;
 float KICKVEL = 50;
 float VAULTVEL = 125;
@@ -28,7 +28,8 @@ int JUMPDELAY = 500;
 int PARKOURMILLIS = 200;
 int PARKOURLENGTH = 1000;
 int PARKOURCOUNT = 2;
-float PARKOURANGLE = 20;
+float PARKOURROLL = 20;
+float PARKOURPITCH = 30;
 float LONGJUMPMIN = 20;
 float LONGJUMPMAX = 45;
 int SLIDEDELAY = 2000;
@@ -1911,11 +1912,10 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                         else yaw -= 90;
                         while(yaw >= 360) yaw -= 360;
                         while(yaw < 0) yaw += 360;
-                        vec rft(yaw*RAD, 0.f);
                         if(!pl->parkourside)
                         {
                             float mag = pl->vel.magnitude()+PARKOURVEL;
-                            pl->vel = vec(rft).mul(mag);
+                            pl->vel = vec(yaw*RAD, PARKOURPITCH*RAD).mul(mag);
                             pl->falling = vec(0, 0, 0);
                             off = yaw-pl->yaw;
                             if(off > 180) off -= 360;
@@ -1923,7 +1923,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                             pl->turnmillis = PARKOURMILLIS;
                             pl->parkourside = side;
                             pl->turnyaw = off;
-                            pl->turnroll = (PARKOURANGLE*pl->parkourside)-pl->roll;
+                            pl->turnroll = (PARKOURROLL*pl->parkourside)-pl->roll;
                             pl->lastjump = pl->lastparkour = lastmillis;
                             pl->numparkour++;
                             pl->jumping = false;
@@ -1933,7 +1933,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                         }
                         else if(side == pl->parkourside)
                         {
-                            (m = rft).normalize(); // re-project and override
+                            m = vec(yaw*RAD, 0.f).normalize(); // re-project and override
                             found = true;
                             break;
                         }
