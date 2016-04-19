@@ -17,11 +17,11 @@ float GRAVITY = 200;
 float PARKOURVEL = 10;
 float KICKVEL = 50;
 float VAULTVEL = 125;
-float UPWALLVEL = 50;
+float UPWALLVEL = 5;
 float SLIDEVEL = 20;
 
-float VAULTMIN = 0.25f;
-float VAULTMAX = 1.6f;
+float VAULTMIN = 0.5f;
+float VAULTMAX = 1.5f;
 float KICKMAX = 35;
 float FACINGANGLE = 150;
 
@@ -1859,41 +1859,26 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                 bool facing = fabs(off) >= FACINGANGLE;
                 if(!pl->parkourside && facing)
                 {
-                    if(onfloor)
-                    {
-                        if(pl->velxychk(RUNSPEED))
-                        {
-                            float mag = pl->vel.magnitude()+UPWALLVEL;
-                            //pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).reflect(face).mul(mag);
-                            pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).mul(mag);
-                            pl->falling = vec(0, 0, 0);
-                            pl->lastupwall = lastmillis;
-                            break;
-                        }
-                    }
-                    else
+                    if(pl->parkouring && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY))
                     {
                         bool vault = false;
-                        if(pl->parkouring && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY))
+                        float space = pl->eyeheight+pl->aboveeye;
+                        pl->o.add(dir);
+                        if(onfloor)
                         {
-                            float space = pl->eyeheight+pl->aboveeye;
-                            pl->o.add(dir);
-                            if(onfloor)
+                            pl->o.z += space*VAULTMIN;
+                            if(collide(pl))
                             {
-                                pl->o.z += space*VAULTMIN;
-                                if(collide(pl))
-                                {
-                                    pl->o.z += space*VAULTMAX-space*VAULTMIN;
-                                    if(!collide(pl) || collideplayer) vault = true;
-                                }
-                            }
-                            else
-                            {
-                                pl->o.z += space*VAULTMAX;
+                                pl->o.z += space*VAULTMAX-space*VAULTMIN;
                                 if(!collide(pl) || collideplayer) vault = true;
                             }
-                            pl->o = oldpos;
                         }
+                        else
+                        {
+                            pl->o.z += space*VAULTMAX;
+                            if(!collide(pl) || collideplayer) vault = true;
+                        }
+                        pl->o = oldpos;
                         if(vault)
                         {
                             float mag = pl->vel.magnitude()+VAULTVEL;
@@ -1908,6 +1893,15 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                             game::physicstrigger(pl, local, 1, 0);
                             break;
                         }
+                    }
+                    else if(pl->velxychk(RUNSPEED) && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY) && (!pl->lastupwall || lastmillis-pl->lastupwall > JUMPDELAY) && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURLENGTH))
+                    {
+                        float mag = pl->vel.magnitude()+UPWALLVEL;
+                        //pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).reflect(face).mul(mag);
+                        pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).mul(mag);
+                        pl->falling = vec(0, 0, 0);
+                        pl->lastupwall = lastmillis;
+                        break;
                     }
                 }
                 if(pl->parkourside || (!facing && pl->parkouring && !onfloor && pl->numparkour < PARKOURCOUNT && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURLENGTH) && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY)))
