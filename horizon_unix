@@ -53,7 +53,7 @@ fi
 if [ -x ${HORIZON_BIN}/${SYSTEM_NAME}${MACHINE_NAME}client ]
 then
   cd ${HORIZON_DATA}
-  exec ${HORIZON_BIN}/${SYSTEM_NAME}${MACHINE_NAME}client ${HORIZON_OPTIONS} "$@"
+  exec ${HORIZON_BIN}/${SYSTEM_NAME}${MACHINE_NAME}client ${HORIZON_OPTIONS} "-xedit test" "$@"
 else
   echo "Your platform does not have a pre-compiled Red Eclipse Horizon client."
   echo "Please follow the following steps to build a native client:"

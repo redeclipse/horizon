@@ -11,4 +11,4 @@ IF EXIST bin64\horizon.exe (
     )
 )
 
-start %HORIZON_BIN%\horizon.exe "-u$HOME\My Games\Red Eclipse Horizon" -glog.txt %*
+start %HORIZON_BIN%\horizon.exe "-u$HOME\My Games\Red Eclipse Horizon" -glog.txt "-xedit test" %*
