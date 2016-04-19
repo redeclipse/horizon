@@ -144,7 +144,7 @@ enum
     N_SHOOT, N_EXPLODE, N_SUICIDE,
     N_DIED, N_DAMAGE, N_HITPUSH, N_SHOTFX, N_EXPLODEFX,
     N_TRYSPAWN, N_SPAWNSTATE, N_SPAWN, N_FORCEDEATH,
-    N_WEAPSELECT, N_TAUNT,
+    N_WEAPSELECT,
     N_MAPCHANGE, N_MAPVOTE, N_ITEMSPAWN, N_ITEMPICKUP, N_ITEMACC, N_TELEPORT, N_JUMPPAD,
     N_PING, N_PONG, N_CLIENTPING,
     N_INTERMISSION, N_FORCEINTERMISSION,
@@ -170,8 +170,7 @@ static const int msgsizes[] =               // size inclusive message token, 0 f
     N_SHOOT, 0, N_EXPLODE, 0, N_SUICIDE, 1,
     N_DIED, 4, N_DAMAGE, 5, N_HITPUSH, 7, N_SHOTFX, 10, N_EXPLODEFX, 4,
     N_TRYSPAWN, 1, N_SPAWNSTATE, 8, N_SPAWN, 3, N_FORCEDEATH, 2,
-    N_WEAPSELECT, 2, N_TAUNT, 1,
-    N_MAPCHANGE, 0, N_MAPVOTE, 0, N_ITEMSPAWN, 2, N_ITEMPICKUP, 2, N_ITEMACC, 3,
+    N_WEAPSELECT, 2, N_MAPCHANGE, 0, N_MAPVOTE, 0, N_ITEMSPAWN, 2, N_ITEMPICKUP, 2, N_ITEMACC, 3,
     N_PING, 2, N_PONG, 2, N_CLIENTPING, 2,
     N_INTERMISSION, 1, N_FORCEINTERMISSION, 1,
     N_SERVMSG, 0, N_ITEMLIST, 0, N_RESUME, 0,
@@ -303,7 +302,6 @@ struct gameent : dynent, gamestate
     int lastpain;
     int lastaction, lastattack;
     int attacking;
-    int lasttaunt;
     int lastpickup, lastpickupmillis, flagpickup;
     int frags, flags, deaths, totaldamage, totalshots;
     editinfo *edit;
@@ -344,7 +342,6 @@ struct gameent : dynent, gamestate
         lastaction = 0;
         lastattack = -1;
         attacking = ACT_IDLE;
-        lasttaunt = 0;
         lastpickup = -1;
         lastpickupmillis = 0;
         flagpickup = 0;
@@ -479,8 +476,9 @@ namespace game
     extern int getplayercolor(gameent *d);
     extern int chooserandomplayermodel(int seed);
     extern void syncplayer();
-    extern void swayhudweap(int curtime);
     extern vec hudweaporigin(int weap, const vec &from, const vec &to, gameent *d);
+    extern void resetsway();
+    extern void addsway(gameent *d);
 }
 
 namespace server

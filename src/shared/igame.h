@@ -89,6 +89,9 @@ namespace game
     extern void adddynlights();
     extern void particletrack(physent *owner, vec &o, vec &d);
     extern void dynlighttrack(physent *owner, vec &o, vec &hud);
+    extern void fixfullrange(float &yaw, float &pitch, float &roll, bool full = false);
+    extern void fixrange(float &yaw, float &pitch);
+    extern void calcangles(physent *c, dynent *d);
     extern vec thirdpos(const vec &pos, float yaw, float pitch, float dist = 1, float side = 0);
     extern vec camerapos(physent *d, bool hasfoc = false, bool hasyp = false, float yaw = 0, float pitch = 0);
 }

@@ -1394,13 +1394,6 @@ namespace game
                 break;
             }
 
-            case N_TAUNT:
-            {
-                if(!d) return;
-                d->lasttaunt = lastmillis;
-                break;
-            }
-
             case N_RESUME:
             {
                 for(;;)

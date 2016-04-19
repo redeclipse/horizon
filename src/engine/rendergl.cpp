@@ -1372,21 +1372,12 @@ physent *camera1 = NULL;
 bool detachedcamera = false;
 bool isthirdperson() { return thirdperson; }
 
-void fixcamerarange()
-{
-    const float MAXPITCH = 90.0f;
-    if(camera1->pitch>MAXPITCH) camera1->pitch = MAXPITCH;
-    if(camera1->pitch<-MAXPITCH) camera1->pitch = -MAXPITCH;
-    while(camera1->yaw<0.0f) camera1->yaw += 360.0f;
-    while(camera1->yaw>=360.0f) camera1->yaw -= 360.0f;
-}
-
 void modifyorient(float yaw, float pitch)
 {
     camera1->yaw += yaw;
     camera1->pitch += pitch;
-    fixcamerarange();
-    if(camera1!=player && !detachedcamera)
+    game::fixrange(camera1->yaw, camera1->pitch);
+    if(camera1 != player && !detachedcamera)
     {
         player->yaw = camera1->yaw;
         player->pitch = camera1->pitch;
@@ -1433,21 +1424,13 @@ void recomputecamera()
     {
         detachedcamera = false;
         camera1->o = game::camerapos(player, true, true, player->yaw, player->pitch);
-        camera1->yaw = player->yaw;
-        camera1->pitch = player->pitch;
-        camera1->roll = player->roll;
     }
     else
     {
-        if(!detachedcamera)
-        {
-            camera1->o = game::thirdpos(player->o, player->yaw, player->pitch, thirdpersondist, thirdpersonside);
-            camera1->yaw = player->yaw;
-            camera1->pitch = player->pitch;
-            camera1->roll = 0;
-        }
+        if(!detachedcamera) camera1->o = game::thirdpos(player->o, player->yaw, player->pitch, thirdpersondist, thirdpersonside);
         detachedcamera = shoulddetach;
     }
+    game::calcangles(camera1, player);
 
     setviewcell(camera1->o);
 }

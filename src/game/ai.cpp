@@ -875,32 +875,6 @@ namespace ai
         }
     }
 
-    void fixfullrange(float &yaw, float &pitch, float &roll, bool full)
-    {
-        if(full)
-        {
-            while(pitch < -180.0f) pitch += 360.0f;
-            while(pitch >= 180.0f) pitch -= 360.0f;
-            while(roll < -180.0f) roll += 360.0f;
-            while(roll >= 180.0f) roll -= 360.0f;
-        }
-        else
-        {
-            if(pitch > 89.9f) pitch = 89.9f;
-            if(pitch < -89.9f) pitch = -89.9f;
-            if(roll > 89.9f) roll = 89.9f;
-            if(roll < -89.9f) roll = -89.9f;
-        }
-        while(yaw < 0.0f) yaw += 360.0f;
-        while(yaw >= 360.0f) yaw -= 360.0f;
-    }
-
-    void fixrange(float &yaw, float &pitch)
-    {
-        float r = 0.f;
-        fixfullrange(yaw, pitch, r, false);
-    }
-
     void getyawpitch(const vec &from, const vec &pos, float &yaw, float &pitch)
     {
         float dist = from.dist(pos);

@@ -169,12 +169,7 @@ namespace game
     VAR(testanims, 0, 0, 1);
     VAR(testpitch, -90, 0, 90);
 
-    VARP(hudweap, 0, 1, 1);
-    VARP(hudweapsway, 0, 1, 1);
-
-    FVAR(swaystep, 1, 35.0f, 100);
-    FVAR(swayside, 0, 0.10f, 1);
-    FVAR(swayup, -1, 0.15f, 1);
+    VARP(firstpersonmodel, 0, 2, 2);
 
     FVAR(firstpersonspine, 0, 0.5f, 1);
     FVAR(firstpersonbodydist, -10, 0, 10);
@@ -211,6 +206,77 @@ namespace game
         return c.o;
     }
 
+    float swayfade = 0, swayspeed = 0, swaydist = 0, bobfade = 0, bobdist = 0;
+    vec swaydir(0, 0, 0), swaypush(0, 0, 0);
+
+    VAR(firstpersonsway, 0, 1, 1);
+    FVAR(firstpersonswaymin, 0, 0.15f, 1);
+    FVAR(firstpersonswaystep, 1, 28.f, 1000);
+    FVAR(firstpersonswayside, 0, 0.05f, 10);
+    FVAR(firstpersonswayup, 0, 0.06f, 10);
+
+    VAR(firstpersonbob, 0, 1, 1);
+    FVAR(firstpersonbobmin, 0, 0.2f, 1);
+    FVAR(firstpersonbobstep, 1, 28.f, 1000);
+    FVAR(firstpersonbobroll, 0, 0.35f, 10);
+    FVAR(firstpersonbobside, 0, 0.75f, 10);
+    FVAR(firstpersonbobup, 0, 0.75f, 10);
+    FVAR(firstpersonbobtopspeed, 0, 75, 1000);
+    FVAR(firstpersonbobfocusmindist, 0, 64, 10000);
+    FVAR(firstpersonbobfocusmaxdist, 0, 256, 10000);
+    FVAR(firstpersonbobfocus, 0, 0.5f, 1);
+
+    void fixfullrange(float &yaw, float &pitch, float &roll, bool full)
+    {
+        if(full)
+        {
+            while(pitch < -180.0f) pitch += 360.0f;
+            while(pitch >= 180.0f) pitch -= 360.0f;
+            while(roll < -180.0f) roll += 360.0f;
+            while(roll >= 180.0f) roll -= 360.0f;
+        }
+        else
+        {
+            if(pitch > 89.9f) pitch = 89.9f;
+            if(pitch < -89.9f) pitch = -89.9f;
+            if(roll > 89.9f) roll = 89.9f;
+            if(roll < -89.9f) roll = -89.9f;
+        }
+        while(yaw < 0.0f) yaw += 360.0f;
+        while(yaw >= 360.0f) yaw -= 360.0f;
+    }
+
+    void fixrange(float &yaw, float &pitch)
+    {
+        float r = 0.f;
+        fixfullrange(yaw, pitch, r, false);
+    }
+
+    void calcangles(physent *c, dynent *d)
+    {
+        c->yaw = d->yaw;
+        c->pitch = d->pitch;
+        if(firstpersonbob && !intermission && d->state == CS_ALIVE && !isthirdperson())
+        {
+            float scale = 1;
+            if(firstpersonbobtopspeed) scale *= clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
+            c->roll = d->roll;
+            if(scale > 0)
+            {
+                vec dir(d->yaw, d->pitch);
+                float steps = bobdist/firstpersonbobstep*M_PI, dist = raycube(c->o, dir, firstpersonbobfocusmaxdist, RAY_CLIPMAT|RAY_POLY), yaw, pitch;
+                if(dist < 0 || dist > firstpersonbobfocusmaxdist) dist = firstpersonbobfocusmaxdist;
+                else if(dist < firstpersonbobfocusmindist) dist = firstpersonbobfocusmindist;
+                vectoyawpitch(vec(firstpersonbobside*cosf(steps), dist, firstpersonbobup*(fabs(sinf(steps)) - 1)), yaw, pitch);
+                c->yaw -= yaw*firstpersonbobfocus*scale;
+                c->pitch -= pitch*firstpersonbobfocus*scale;
+                c->roll += (1-firstpersonbobfocus)*firstpersonbobroll*cosf(steps)*scale;
+                fixfullrange(c->yaw, c->pitch, c->roll, false);
+            }
+        }
+        else c->roll = 0;
+    }
+
     float firstpersonspineoffset = 0;
     vec firstpos(physent *d, const vec &pos, float yaw, float pitch)
     {
@@ -236,17 +302,9 @@ namespace game
             if(firstpersonpitchscale >= 0) lean *= firstpersonpitchscale;
             to.add(vec(yaw*RAD, (lean+90)*RAD).mul(spineoff));
         }
-        #if 0
-        if(firstpersonbob && gs_playing(gamestate) && d->state == CS_ALIVE)
+        if(firstpersonbob && !intermission && d->state == CS_ALIVE)
         {
             float scale = 1;
-            if(gameent::is(d) && d == focus && inzoom())
-            {
-                gameent *e = (gameent *)d;
-                int frame = lastmillis-lastzoom;
-                float pc = frame <= W(e->weapselect, cookzoom) ? (frame)/float(W(e->weapselect, cookzoom)) : 1.f;
-                scale *= zooming ? 1.f-pc : pc;
-            }
             if(firstpersonbobtopspeed) scale *= clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
             if(scale > 0)
             {
@@ -256,7 +314,6 @@ namespace game
                 to.add(dir);
             }
         }
-        #endif
         c.o.z = to.z; // assume inside ourselves is safe
         vec dir = vec(to).sub(c.o), old = c.o;
         if(dir.iszero()) return c.o;
@@ -283,34 +340,46 @@ namespace game
         return pos;
     }
 
-    float swayfade = 0, swayspeed = 0, swaydist = 0;
-    vec swaydir(0, 0, 0);
-
-    void swayhudweap(int curtime)
+    void resetsway()
     {
-        gameent *d = hudplayer();
-        if(d->state != CS_SPECTATOR)
+        swaydir = swaypush = vec(0, 0, 0);
+        swayfade = swayspeed = swaydist = bobfade = bobdist = 0;
+    }
+
+    void addsway(gameent *d)
+    {
+        float speed = d->maxspeed, step = firstpersonbob ? firstpersonbobstep : firstpersonswaystep;
+        if(d->state == CS_ALIVE && (d->physstate >= PHYS_SLOPE || d->parkourside))
         {
-            if(d->physstate >= PHYS_SLOPE)
-            {
-                swayspeed = min(sqrtf(d->vel.x*d->vel.x + d->vel.y*d->vel.y), d->maxspeed);
-                swaydist += swayspeed*curtime/1000.0f;
-                swaydist = fmod(swaydist, 2*swaystep);
-                swayfade = 1;
-            }
-            else if(swayfade > 0)
+            swayspeed = max(speed*firstpersonswaymin, min(sqrtf(d->vel.x*d->vel.x + d->vel.y*d->vel.y), speed));
+            swaydist += swayspeed*curtime/1000.0f;
+            swaydist = fmod(swaydist, 2*step);
+            bobdist += swayspeed*curtime/1000.0f;
+            bobdist = fmod(bobdist, 2*firstpersonbobstep);
+            bobfade = swayfade = 1;
+        }
+        else
+        {
+            if(swayfade > 0)
             {
                 swaydist += swayspeed*swayfade*curtime/1000.0f;
-                swaydist = fmod(swaydist, 2*swaystep);
-                swayfade -= 0.5f*(curtime*d->maxspeed)/(swaystep*1000.0f);
+                swaydist = fmod(swaydist, 2*step);
+                swayfade -= 0.5f*(curtime*speed)/(step*1000.0f);
             }
-
-            float k = pow(0.7f, curtime/10.0f);
-            swaydir.mul(k);
-            vec vel(d->vel);
-            vel.add(d->falling);
-            swaydir.add(vec(vel).mul((1-k)/(15*max(vel.magnitude(), d->maxspeed))));
+            if(bobfade > 0)
+            {
+                bobdist += swayspeed*bobfade*curtime/1000.0f;
+                bobdist = fmod(bobdist, 2*firstpersonbobstep);
+                bobfade -= 0.5f*(curtime*speed)/(firstpersonbobstep*1000.0f);
+            }
         }
+
+        float k = pow(0.7f, curtime/25.0f);
+        swaydir.mul(k);
+        vec inertia = vec(d->vel).add(d->falling);
+        float speedscale = max(inertia.magnitude(), speed);
+        if(d->state == CS_ALIVE && speedscale > 0) swaydir.add(vec(inertia).mul((1-k)/(15*speedscale)));
+        swaypush.mul(pow(0.5f, curtime/25.0f));
     }
 
     struct avatarent : dynent
@@ -340,17 +409,14 @@ namespace game
         }
         else if(!intermission)
         {
-            if(third == 1 && d == hudplayer() && d == player1 && third == 1)
-                vectoyawpitch(vec(worldpos).sub(d->o).normalize(), yaw, pitch);
-            else if(!third)
+            if(third == 1 && d == hudplayer() && d == player1 && isthirdperson())
+                vectoyawpitch(vec(worldpos).sub(d->headpos()).normalize(), yaw, pitch);
+            else if(!third && firstpersonsway)
             {
-                vec sway;
-                vecfromyawpitch(d->yaw, 0, 0, 1, sway);
-                float steps = swaydist/swaystep*M_PI;
-                sway.mul(swayside*cosf(steps));
-                sway.z = swayup*(fabs(sinf(steps)) - 1);
-                sway.add(swaydir).add(o);
-                if(hudweapsway) o = sway;
+                float steps = swaydist/(firstpersonbob ? firstpersonbobstep : firstpersonswaystep)*M_PI;
+                vec dir = vec(d->yaw*RAD, 0.f).mul(firstpersonswayside*cosf(steps));
+                dir.z = firstpersonswayup*(fabs(sinf(steps)) - 1);
+                o.add(dir).add(swaydir).add(swaypush);
             }
         }
         if(d->lastattack >= 0)
@@ -459,7 +525,7 @@ namespace game
         if(d->type != ENT_PLAYER) flags |= MDL_CULL_DIST;
         if(!mainpass) flags &= ~(MDL_FULLBRIGHT | MDL_CULL_VFC | MDL_CULL_OCCLUDED | MDL_CULL_QUERY | MDL_CULL_DIST);
         dynent *e = third ? (third != 2 ? (dynent *)d : (dynent *)&bodymodel) : (dynent *)&avatarmodel;
-        rendermodel(mdlname, anim, o, yaw, third == 2 && firstpersonbodypitch >= 0 ? pitch*firstpersonbodypitch : pitch, third == 2 ? 0.f : roll, flags, e, a[0].tag ? a : NULL, basetime, basetime2, fade, vec4(vec::hexcolor(color), d->state == CS_LAGGED ? 0.5f : 1.0f));
+        rendermodel(mdlname, anim, o, yaw, third == 2 ? pitch*firstpersonbodypitch : pitch, third == 2 ? 0.f : roll, flags, e, a[0].tag ? a : NULL, basetime, basetime2, fade, vec4(vec::hexcolor(color), d->state == CS_LAGGED ? 0.5f : 1.0f));
     }
 
     static inline void renderplayer(gameent *d, float fade = 1, int flags = 0)
@@ -502,8 +568,8 @@ namespace game
     void renderavatar()
     {
         gameent *d = hudplayer();
-        renderplayer(d, getplayermodelinfo(d), 0, getplayercolor(d), 1, MDL_NOBATCH);
-        renderplayer(d, getplayermodelinfo(d), 2, getplayercolor(d), 1, MDL_NOBATCH, false);
+        if(firstpersonmodel) renderplayer(d, getplayermodelinfo(d), 0, getplayercolor(d), 1, MDL_NOBATCH);
+        if(firstpersonmodel == 2) renderplayer(d, getplayermodelinfo(d), 2, getplayercolor(d), 1, MDL_NOBATCH, false);
         if(d->muzzle.x >= 0) d->muzzle = calcavatarpos(d->muzzle, 12);
    }
 
@@ -541,7 +607,7 @@ namespace game
             return offset;
         }
         offset.add(vec(to).sub(from).normalize().mul(2));
-        if(hudweap)
+        if(firstpersonmodel)
         {
             offset.sub(vec(camup).mul(1.0f));
             offset.add(vec(camright).mul(0.8f));
@@ -573,7 +639,7 @@ namespace game
 
     void preload()
     {
-        if(hudweap) preloadweapons();
+        if(firstpersonmodel) preloadweapons();
         preloadbouncers();
         preloadplayermodel();
         preloadsounds();

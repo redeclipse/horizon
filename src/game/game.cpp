@@ -242,9 +242,9 @@ namespace game
                 if(player1->ragdoll) cleanragdoll(player1);
                 crouchplayer(player1, 10, true);
                 moveplayer(player1, 10, true);
-                swayhudweap(curtime);
                 entities::checkitems(player1);
             }
+            if(!isthirdperson()) addsway(hudplayer());
         }
         if(player1->clientnum>=0) c2sinfo();   // do this last, to reduce the effective frame lag
     }
@@ -306,18 +306,9 @@ namespace game
 
     bool allowmove(physent *d)
     {
-        if(d->type!=ENT_PLAYER) return true;
-        return !((gameent *)d)->lasttaunt || lastmillis-((gameent *)d)->lasttaunt>=1000;
+        //if(d->type!=ENT_PLAYER) return true;
+        return true;
     }
-
-    void taunt()
-    {
-        if(player1->state!=CS_ALIVE || player1->physstate<PHYS_SLOPE) return;
-        if(lastmillis-player1->lasttaunt<1000) return;
-        player1->lasttaunt = lastmillis;
-        addmsg(N_TAUNT, "rc", player1);
-    }
-    COMMAND(taunt, "");
 
     VARP(hitsound, 0, 0, 1);
 
