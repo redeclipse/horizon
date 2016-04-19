@@ -11,8 +11,8 @@ float FLOORZ = 0.867f;
 float SLOPEZ = 0.5f;
 float WALLZ = 0.2f;
 
-float JUMPVEL = 75;
-float LONGJUMPVEL = 200;
+float JUMPVEL = 80;
+float LONGJUMPVEL = 225;
 float GRAVITY = 200;
 float PARKOURVEL = 10;
 float KICKVEL = 50;
@@ -1810,7 +1810,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
         }
         else
         {
-            if(onfloor && pl->jumping)
+            if((onfloor || pl->sliding(lastmillis, SLIDETIME)) && pl->jumping)
             {
                 if(pl->sliding(lastmillis, SLIDETIME))
                 {
@@ -1835,114 +1835,112 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
             }
         }
         bool found = false;
-        //if((!onfloor && pl->jumping) || pl->parkourside)
+        vec oldpos = pl->o, dir;
+        const int movements[6][2] = { { 2, 2 }, { 1, 2 }, { 1, -1 }, { 1, 1 }, { 0, 2 }, { -1, 2 } };
+        loopi(pl->parkourside ? 6 : 4) // we do these insane checks so that running along walls works at all times
         {
-            vec oldpos = pl->o, dir;
-            const int movements[6][2] = { { 2, 2 }, { 1, 2 }, { 1, -1 }, { 1, 1 }, { 0, 2 }, { -1, 2 } };
-            loopi(pl->parkourside ? 6 : 4) // we do these insane checks so that running along walls works at all times
+            int move = movements[i][0], strafe = movements[i][1];
+            if(move == 2) move = pl->move > 0 ? pl->move : 0;
+            if(strafe == 2) strafe = pl->parkourside ? pl->parkourside : pl->strafe;
+            if(!move && !strafe) continue;
+            vecfromyawpitch(pl->yaw, 0, move, strafe, dir);
+            pl->o.add(dir);
+            bool collided = collide(pl);
+            pl->o = oldpos;
+            if(!collided || collideplayer || collidewall.iszero()) continue;
+            vec face = vec(collidewall).normalize();
+            if(fabs(face.z) <= 0.5f)
             {
-                int move = movements[i][0], strafe = movements[i][1];
-                if(move == 2) move = pl->move > 0 ? pl->move : 0;
-                if(strafe == 2) strafe = pl->parkourside ? pl->parkourside : pl->strafe;
-                if(!move && !strafe) continue;
-                vecfromyawpitch(pl->yaw, 0, move, strafe, dir);
-                pl->o.add(dir);
-                bool collided = collide(pl);
-                pl->o = oldpos;
-                if(!collided || collideplayer || collidewall.iszero()) continue;
-                vec face = vec(collidewall).normalize();
-                if(fabs(face.z) <= 0.5f)
+                float yaw = 0, pitch = 0;
+                vectoyawpitch(face, yaw, pitch);
+                float off = yaw-pl->yaw;
+                if(off > 180) off -= 360;
+                else if(off < -180) off += 360;
+                bool facing = fabs(off) >= FACINGANGLE;
+                if(!pl->parkourside && facing)
                 {
-                    float yaw = 0, pitch = 0;
-                    vectoyawpitch(face, yaw, pitch);
-                    float off = yaw-pl->yaw;
-                    if(off > 180) off -= 360;
-                    else if(off < -180) off += 360;
-                    bool facing = fabs(off) >= FACINGANGLE;
-                    if(!pl->parkourside && facing)
+                    if(onfloor)
                     {
-                        if(onfloor)
+                        if(pl->velxychk(RUNSPEED))
                         {
-                            if(pl->velxychk(RUNSPEED))
-                            {
-                                float mag = pl->vel.magnitude()+UPWALLVEL;
-                                pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).reflect(face).mul(mag);
-                                pl->falling = vec(0, 0, 0);
-                                pl->lastupwall = lastmillis;
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            bool vault = false;
-                            if(pl->jumping && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY))
-                            {
-                                float space = pl->eyeheight+pl->aboveeye;
-                                pl->o.add(dir);
-                                if(onfloor)
-                                {
-                                    pl->o.z += space*VAULTMIN;
-                                    if(collide(pl))
-                                    {
-                                        pl->o.z += space*VAULTMAX-space*VAULTMIN;
-                                        if(!collide(pl) || collideplayer) vault = true;
-                                    }
-                                }
-                                else
-                                {
-                                    pl->o.z += space*VAULTMAX;
-                                    if(!collide(pl) || collideplayer) vault = true;
-                                }
-                                pl->o = oldpos;
-                            }
-                            if(vault)
-                            {
-                                float mag = pl->vel.magnitude()+VAULTVEL;
-                                pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).mul(mag);
-                                pl->falling = vec(0, 0, 0);
-                                pl->turnmillis = PARKOURMILLIS;
-                                pl->parkourside = 0;
-                                pl->turnyaw = pl->turnroll = 0;
-                                pl->lastjump = lastmillis;
-                                pl->lastparkour = 0;
-                                pl->jumping = false;
-                                game::physicstrigger(pl, local, 1, 0);
-                                break;
-                            }
+                            float mag = pl->vel.magnitude()+UPWALLVEL;
+                            //pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).reflect(face).mul(mag);
+                            pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).mul(mag);
+                            pl->falling = vec(0, 0, 0);
+                            pl->lastupwall = lastmillis;
+                            break;
                         }
                     }
-                    if(pl->parkourside || (!facing && pl->kicking && !onfloor && pl->numparkour < PARKOURCOUNT && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURLENGTH) && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY)))
+                    else
                     {
-                        int side = off < 0 ? -1 : 1;
-                        if(off < 0) yaw += 90;
-                        else yaw -= 90;
-                        while(yaw >= 360) yaw -= 360;
-                        while(yaw < 0) yaw += 360;
-                        if(!pl->parkourside)
+                        bool vault = false;
+                        if(pl->parkouring && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY))
                         {
-                            float mag = pl->vel.magnitude()+PARKOURVEL;
-                            pl->vel = vec(yaw*RAD, PARKOURPITCH*RAD).mul(mag);
+                            float space = pl->eyeheight+pl->aboveeye;
+                            pl->o.add(dir);
+                            if(onfloor)
+                            {
+                                pl->o.z += space*VAULTMIN;
+                                if(collide(pl))
+                                {
+                                    pl->o.z += space*VAULTMAX-space*VAULTMIN;
+                                    if(!collide(pl) || collideplayer) vault = true;
+                                }
+                            }
+                            else
+                            {
+                                pl->o.z += space*VAULTMAX;
+                                if(!collide(pl) || collideplayer) vault = true;
+                            }
+                            pl->o = oldpos;
+                        }
+                        if(vault)
+                        {
+                            float mag = pl->vel.magnitude()+VAULTVEL;
+                            pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).mul(mag);
                             pl->falling = vec(0, 0, 0);
-                            off = yaw-pl->yaw;
-                            if(off > 180) off -= 360;
-                            else if(off < -180) off += 360;
                             pl->turnmillis = PARKOURMILLIS;
-                            pl->parkourside = side;
-                            pl->turnyaw = off;
-                            pl->turnroll = (PARKOURROLL*pl->parkourside)-pl->roll;
-                            pl->lastjump = pl->lastparkour = lastmillis;
-                            pl->numparkour++;
-                            pl->kicking = false;
+                            pl->parkourside = 0;
+                            pl->turnyaw = pl->turnroll = 0;
+                            pl->lastjump = lastmillis;
+                            pl->lastparkour = 0;
+                            pl->parkouring = false;
                             game::physicstrigger(pl, local, 1, 0);
-                            found = true;
                             break;
                         }
-                        else if(side == pl->parkourside)
-                        {
-                            m = vec(yaw*RAD, 0.f).normalize(); // re-project and override
-                            found = true;
-                            break;
-                        }
+                    }
+                }
+                if(pl->parkourside || (!facing && pl->parkouring && !onfloor && pl->numparkour < PARKOURCOUNT && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURLENGTH) && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY)))
+                {
+                    int side = off < 0 ? -1 : 1;
+                    if(off < 0) yaw += 90;
+                    else yaw -= 90;
+                    while(yaw >= 360) yaw -= 360;
+                    while(yaw < 0) yaw += 360;
+                    if(!pl->parkourside)
+                    {
+                        float mag = pl->vel.magnitude()+PARKOURVEL;
+                        pl->vel = vec(yaw*RAD, PARKOURPITCH*RAD).mul(mag);
+                        pl->falling = vec(0, 0, 0);
+                        off = yaw-pl->yaw;
+                        if(off > 180) off -= 360;
+                        else if(off < -180) off += 360;
+                        pl->turnmillis = PARKOURMILLIS;
+                        pl->parkourside = side;
+                        pl->turnyaw = off;
+                        pl->turnroll = (PARKOURROLL*pl->parkourside)-pl->roll;
+                        pl->lastjump = pl->lastparkour = lastmillis;
+                        pl->numparkour++;
+                        pl->parkouring = false;
+                        game::physicstrigger(pl, local, 1, 0);
+                        found = true;
+                        break;
+                    }
+                    else if(side == pl->parkourside)
+                    {
+                        m = vec(yaw*RAD, 0.f).normalize(); // re-project and override
+                        found = true;
+                        break;
                     }
                 }
             }
@@ -1966,9 +1964,9 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
         {
             if(pl == player) d.mul(floatspeed/100.0f);
         }
-        else if(pl->crouching && (!pl->lastslide || lastmillis-pl->lastslide > SLIDETIME)) d.mul(CROUCHSCALE);
+        else if(pl->crouching && !pl->sliding(lastmillis, SLIDETIME)) d.mul(CROUCHSCALE);
     }
-    float fric = water && !floating ? WATERFRIC : (pl->parkourside ? PARKOURFRIC : (pl->physstate >= PHYS_SLOPE || floating ? (pl->sliding(lastmillis, SLIDETIME) ? SLIDEFRIC : FLOORFRIC) : AIRFRIC));
+    float fric = water && !floating ? WATERFRIC : (pl->parkourside ? PARKOURFRIC : (pl->sliding(lastmillis, SLIDETIME) ? SLIDEFRIC : (pl->physstate >= PHYS_SLOPE || floating ? FLOORFRIC : AIRFRIC)));
     pl->vel.lerp(d, pl->vel, pow(1 - 1/fric, curtime/20.0f));
 }
 
@@ -2216,7 +2214,7 @@ dir(left,     strafe,  1, k_left,  k_right);
 dir(right,    strafe, -1, k_right, k_left);
 
 ICOMMAND(jump,   "D", (int *down), { if(!*down || game::canjump()) player->jumping = *down!=0; });
-ICOMMAND(kick,   "D", (int *down), { if(!*down || game::cankick()) player->kicking = *down!=0; });
+ICOMMAND(parkour,   "D", (int *down), { if(!*down || game::cankick()) player->parkouring = *down!=0; });
 ICOMMAND(crouch, "D", (int *down), { if(!*down) player->crouching = abs(player->crouching); else if(game::cancrouch()) player->crouching = -1; });
 
 bool entinmap(dynent *d, bool avoidplayers)        // brute force but effective way to find a free spawn spot in the map

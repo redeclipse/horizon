@@ -224,6 +224,11 @@ namespace game
 
             if(d->inwater && d->physstate<=PHYS_FALL) anim |= ((d->move || d->strafe || d->vel.z+d->falling.z>0 ? ANIM_SWIM : ANIM_SINK)|ANIM_LOOP)<<ANIM_SECONDARY;
             else if(d->parkourside) anim |= ((d->parkourside>0 ? ANIM_WALL_RUN_LEFT : ANIM_WALL_RUN_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
+            else if(d->sliding(lastmillis, SLIDETIME))
+            {
+                basetime2 = d->lastslide;
+                anim |= (ANIM_SLIDE|ANIM_LOOP)<<ANIM_SECONDARY;
+            }
             else if(d->physstate == PHYS_FALL && d->timeinair >= 50)
             {
                 basetime2 = lastmillis-d->timeinair;
@@ -245,11 +250,6 @@ namespace game
                 else if(d->move<0) anim |= ANIM_JUMP_BACKWARD<<ANIM_SECONDARY;
                 else anim |= ANIM_JUMP<<ANIM_SECONDARY;
                 if(!basetime2) anim |= ANIM_END<<ANIM_SECONDARY;
-            }
-            else if(d->sliding(lastmillis, SLIDETIME))
-            {
-                basetime2 = d->lastslide;
-                anim |= (ANIM_SLIDE|ANIM_LOOP)<<ANIM_SECONDARY;
             }
             else if(d->crouching)
             {

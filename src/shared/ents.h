@@ -73,7 +73,7 @@ struct physent                                  // base entity type, can be affe
     vec floor;                                  // the normal of floor the dynent is on
 
     int inwater;
-    bool jumping, kicking;
+    bool jumping, parkouring;
     char move, strafe, crouching;
 
     uchar physstate;                            // one of PHYS_* above
@@ -104,7 +104,7 @@ struct physent                                  // base entity type, can be affe
         turnyaw = turnroll = 0;
         lastparkour = lastjump = lastupwall = lastslide = numparkour = 0;
         eyeheight = maxheight;
-        jumping = kicking = false;
+        jumping = parkouring = false;
         strafe = move = crouching = 0;
         physstate = PHYS_FALL;
         vel = falling = vec(0, 0, 0);
@@ -115,7 +115,7 @@ struct physent                                  // base entity type, can be affe
     vec headpos(float offset = 0) const { return vec(o).addz(offset); }
 
     bool crouched() const { return fabs(eyeheight - maxheight*CROUCHHEIGHT) < 1e-4f; }
-    bool sliding(int millis, int delay) const { return crouching && physstate >= PHYS_SLOPE && lastslide && millis-lastslide <= delay; }
+    bool sliding(int millis, int delay) const { return crouching && lastslide && millis-lastslide <= delay; }
     bool velxychk(float speed) const { return sqrtf(vel.x*vel.x+vel.y*vel.y) >= speed; }
 };
 
@@ -196,7 +196,7 @@ struct dynent : physent                         // animated characters, or chara
 
     void stopmoving()
     {
-        k_left = k_right = k_up = k_down = jumping = kicking = false;
+        k_left = k_right = k_up = k_down = jumping = parkouring = false;
         move = strafe = crouching = 0;
     }
 
