@@ -73,7 +73,7 @@ struct physent                                  // base entity type, can be affe
     vec floor;                                  // the normal of floor the dynent is on
 
     int inwater;
-    bool jumping;
+    bool jumping, kicking;
     char move, strafe, crouching;
 
     uchar physstate;                            // one of PHYS_* above
@@ -104,7 +104,7 @@ struct physent                                  // base entity type, can be affe
         turnyaw = turnroll = 0;
         lastparkour = lastjump = lastupwall = lastslide = numparkour = 0;
         eyeheight = maxheight;
-        jumping = false;
+        jumping = kicking = false;
         strafe = move = crouching = 0;
         physstate = PHYS_FALL;
         vel = falling = vec(0, 0, 0);
@@ -196,7 +196,7 @@ struct dynent : physent                         // animated characters, or chara
 
     void stopmoving()
     {
-        k_left = k_right = k_up = k_down = jumping = false;
+        k_left = k_right = k_up = k_down = jumping = kicking = false;
         move = strafe = crouching = 0;
     }
 

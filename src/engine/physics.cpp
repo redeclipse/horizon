@@ -1911,7 +1911,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                             }
                         }
                     }
-                    if(pl->parkourside || (!facing && pl->jumping && !onfloor && pl->numparkour < PARKOURCOUNT && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURLENGTH) && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY)))
+                    if(pl->parkourside || (!facing && pl->kicking && !onfloor && pl->numparkour < PARKOURCOUNT && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURLENGTH) && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY)))
                     {
                         int side = off < 0 ? -1 : 1;
                         if(off < 0) yaw += 90;
@@ -1932,7 +1932,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                             pl->turnroll = (PARKOURROLL*pl->parkourside)-pl->roll;
                             pl->lastjump = pl->lastparkour = lastmillis;
                             pl->numparkour++;
-                            pl->jumping = false;
+                            pl->kicking = false;
                             game::physicstrigger(pl, local, 1, 0);
                             found = true;
                             break;
@@ -2216,6 +2216,7 @@ dir(left,     strafe,  1, k_left,  k_right);
 dir(right,    strafe, -1, k_right, k_left);
 
 ICOMMAND(jump,   "D", (int *down), { if(!*down || game::canjump()) player->jumping = *down!=0; });
+ICOMMAND(kick,   "D", (int *down), { if(!*down || game::cankick()) player->kicking = *down!=0; });
 ICOMMAND(crouch, "D", (int *down), { if(!*down) player->crouching = abs(player->crouching); else if(game::cancrouch()) player->crouching = -1; });
 
 bool entinmap(dynent *d, bool avoidplayers)        // brute force but effective way to find a free spawn spot in the map

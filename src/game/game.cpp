@@ -292,6 +292,12 @@ namespace game
         return player1->state!=CS_DEAD;
     }
 
+    bool cankick()
+    {
+        if(!connected || intermission) return false;
+        return player1->state!=CS_DEAD;
+    }
+
     bool cancrouch()
     {
         if(!connected || intermission) return false;
