@@ -1,5 +1,5 @@
 #include "game.h"
-
+extern int hudw, hudh;
 namespace game
 {
     VARP(ragdoll, 0, 1, 1);
@@ -169,37 +169,221 @@ namespace game
     VAR(testanims, 0, 0, 1);
     VAR(testpitch, -90, 0, 90);
 
-    void renderplayer(gameent *d, const playermodelinfo &mdl, int color, float fade, int flags = 0, bool mainpass = true)
+    VARP(hudweap, 0, 1, 1);
+    VARP(hudweapsway, 0, 1, 1);
+
+    FVAR(swaystep, 1, 35.0f, 100);
+    FVAR(swayside, 0, 0.10f, 1);
+    FVAR(swayup, -1, 0.15f, 1);
+
+    FVAR(firstpersonspine, 0, 0.5f, 1);
+    FVAR(firstpersonbodydist, -10, 0, 10);
+    FVAR(firstpersonbodyside, -10, 0, 10);
+    FVAR(firstpersonbodypitch, -1, 1, 1);
+    FVAR(firstpersonbodyz, 0, 7, 10);
+
+    FVAR(firstpersonpitchmin, 0, 90, 90);
+    FVAR(firstpersonpitchmax, 0, 45, 90);
+    FVAR(firstpersonpitchscale, -1, 1, 1);
+    FVAR(firstpersonbodyfeet, -1, 4.75f, 20);
+
+    vec thirdpos(const vec &pos, float yaw, float pitch, float dist, float side)
     {
-        int lastaction = d->lastaction, anim = ANIM_IDLE|ANIM_LOOP, attack = 0, delay = 0;
+        static struct tpcam : physent
+        {
+            tpcam()
+            {
+                physent::reset();
+                type = ENT_CAMERA;
+                state = CS_ALIVE;
+                eyeheight = aboveeye = radius = xradius = yradius = 2;
+            }
+        } c;
+        c.o = pos;
+        if(dist || side)
+        {
+            vec dir[3] = { vec(0, 0, 0), vec(0, 0, 0), vec(0, 0, 0) };
+            if(dist) vecfromyawpitch(yaw, pitch, -1, 0, dir[0]);
+            if(side) vecfromyawpitch(yaw, pitch, 0, -1, dir[1]);
+            dir[2] = dir[0].mul(dist).add(dir[1].mul(side)).normalize();
+            movecamera(&c, dir[2], dist, 0.1f);
+        }
+        return c.o;
+    }
+
+    float firstpersonspineoffset = 0;
+    vec firstpos(physent *d, const vec &pos, float yaw, float pitch)
+    {
+        if(d->state != CS_ALIVE) return pos;
+        static struct fpcam : physent
+        {
+            fpcam()
+            {
+                physent::reset();
+                type = ENT_CAMERA;
+                state = CS_ALIVE;
+                eyeheight = aboveeye = radius = xradius = yradius = 2;
+            }
+        } c;
+
+        vec to = pos;
+        c.o = pos;
+        if(firstpersonspine > 0)
+        {
+            float spineoff = firstpersonspine*d->eyeheight*0.5f;
+            to.z -= spineoff;
+            float lean = clamp(pitch, -firstpersonpitchmin, firstpersonpitchmax);
+            if(firstpersonpitchscale >= 0) lean *= firstpersonpitchscale;
+            to.add(vec(yaw*RAD, (lean+90)*RAD).mul(spineoff));
+        }
+        #if 0
+        if(firstpersonbob && gs_playing(gamestate) && d->state == CS_ALIVE)
+        {
+            float scale = 1;
+            if(gameent::is(d) && d == focus && inzoom())
+            {
+                gameent *e = (gameent *)d;
+                int frame = lastmillis-lastzoom;
+                float pc = frame <= W(e->weapselect, cookzoom) ? (frame)/float(W(e->weapselect, cookzoom)) : 1.f;
+                scale *= zooming ? 1.f-pc : pc;
+            }
+            if(firstpersonbobtopspeed) scale *= clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
+            if(scale > 0)
+            {
+                float steps = bobdist/firstpersonbobstep*M_PI;
+                vec dir = vec(yaw*RAD, 0.f).mul(firstpersonbobside*cosf(steps)*scale);
+                dir.z = firstpersonbobup*(fabs(sinf(steps)) - 1)*scale;
+                to.add(dir);
+            }
+        }
+        #endif
+        c.o.z = to.z; // assume inside ourselves is safe
+        vec dir = vec(to).sub(c.o), old = c.o;
+        if(dir.iszero()) return c.o;
+        float dist = dir.magnitude();
+        dir.normalize();
+        movecamera(&c, dir, dist, 0.1f);
+        firstpersonspineoffset = max(dist-old.dist(c.o), 0.f);
+        return c.o;
+    }
+
+    vec camerapos(physent *d, bool hasfoc, bool hasyp, float yaw, float pitch)
+    {
+        vec pos = d->o;
+        if(d == hudplayer() || hasfoc)
+        {
+            if(!hasyp)
+            {
+                yaw = d->yaw;
+                pitch = d->pitch;
+            }
+            if(isthirdperson()) pos = thirdpos(pos, yaw, pitch, 10, 0);
+            else pos = firstpos(d, pos, yaw, pitch);
+        }
+        return pos;
+    }
+
+    float swayfade = 0, swayspeed = 0, swaydist = 0;
+    vec swaydir(0, 0, 0);
+
+    void swayhudweap(int curtime)
+    {
+        gameent *d = hudplayer();
+        if(d->state != CS_SPECTATOR)
+        {
+            if(d->physstate >= PHYS_SLOPE)
+            {
+                swayspeed = min(sqrtf(d->vel.x*d->vel.x + d->vel.y*d->vel.y), d->maxspeed);
+                swaydist += swayspeed*curtime/1000.0f;
+                swaydist = fmod(swaydist, 2*swaystep);
+                swayfade = 1;
+            }
+            else if(swayfade > 0)
+            {
+                swaydist += swayspeed*swayfade*curtime/1000.0f;
+                swaydist = fmod(swaydist, 2*swaystep);
+                swayfade -= 0.5f*(curtime*d->maxspeed)/(swaystep*1000.0f);
+            }
+
+            float k = pow(0.7f, curtime/10.0f);
+            swaydir.mul(k);
+            vec vel(d->vel);
+            vel.add(d->falling);
+            swaydir.add(vec(vel).mul((1-k)/(15*max(vel.magnitude(), d->maxspeed))));
+        }
+    }
+
+    struct avatarent : dynent
+    {
+        avatarent() { type = ENT_CAMERA; }
+    };
+    avatarent avatarmodel, bodymodel;
+
+    void renderplayer(gameent *d, const playermodelinfo &mdl, int third, int color, float fade, int flags = 0, bool mainpass = true)
+    {
+        modelattach a[5];
+        const char *mnames[3] = { "/hwep", "/vwep", "/body" };
+        float yaw = third == 1 && testanims && d == player1 ? 0 : d->yaw,
+              pitch = third == 1 && testpitch && d == player1 ? testpitch : d->pitch, roll = third ? 0.f : d->roll;
+        int basetime = 0, basetime2 = 0, ai = 0, lastaction = d->lastaction, anim = ANIM_IDLE|ANIM_LOOP, attack = 0, delay = 0;
+        vec o = third ? d->feetpos() : camerapos(d);
+        if(third == 2)
+        {
+            o.sub(vec(yaw*RAD, 0.f).mul(firstpersonbodydist+firstpersonspineoffset));
+            o.sub(vec(yaw*RAD, 0.f).rotate_around_z(90*RAD).mul(firstpersonbodyside));
+            o.z -= firstpersonbodyz;
+            if(firstpersonbodyfeet >= 0)
+            {
+                float minz = max(d->toe[0].z, d->toe[1].z)+(firstpersonbodyfeet);
+                if(minz > camera1->o.z) o.z -= minz-camera1->o.z;
+            }
+        }
+        else if(!intermission)
+        {
+            if(third == 1 && d == hudplayer() && d == player1 && third == 1)
+                vectoyawpitch(vec(worldpos).sub(d->o).normalize(), yaw, pitch);
+            else if(!third)
+            {
+                vec sway;
+                vecfromyawpitch(d->yaw, 0, 0, 1, sway);
+                float steps = swaydist/swaystep*M_PI;
+                sway.mul(swayside*cosf(steps));
+                sway.z = swayup*(fabs(sinf(steps)) - 1);
+                sway.add(swaydir).add(o);
+                if(hudweapsway) o = sway;
+            }
+        }
         if(d->lastattack >= 0)
         {
             attack = attacks[d->lastattack].anim;
             delay = attacks[d->lastattack].attackdelay+50;
         }
-        modelattach a[5];
-        int ai = 0;
-        if(weaps[d->weapselect].model)
+        if(third != 2)
         {
-            int vanim = ANIM_VWEP_IDLE|ANIM_LOOP, vtime = 0;
-            if(lastaction && d->lastattack >= 0 && attacks[d->lastattack].weap==d->weapselect && lastmillis < lastaction + delay)
+            if(weaps[d->weapselect].model)
             {
-                vanim = attacks[d->lastattack].vwepanim;
-                vtime = lastaction;
+                int vanim = (third ? ANIM_VWEP_IDLE : ANIM_WEAP_IDLE)|ANIM_LOOP, vtime = 0;
+                if(lastaction && d->lastattack >= 0 && attacks[d->lastattack].weap==d->weapselect && lastmillis < lastaction + delay)
+                {
+                    vanim = third ? attacks[d->lastattack].vwepanim : attacks[d->lastattack].hudanim;
+                    vtime = lastaction;
+                }
+                defformatstring(weapname, "%s%s", mdl.model, mnames[third]);
+                a[ai++] = modelattach("tag_weapon", weapname, vanim, vtime);
             }
-            defformatstring(weapname, "%s/vwep", mdl.model);
-            a[ai++] = modelattach("tag_weapon", weapname, vanim, vtime);
+            if(mainpass && !(flags&MDL_ONLYSHADOW))
+            {
+                d->muzzle = vec(-1, -1, -1);
+                if(weaps[d->weapselect].model) a[ai++] = modelattach("tag_muzzle", &d->muzzle);
+            }
         }
-        if(mainpass && !(flags&MDL_ONLYSHADOW))
+        if(third)
         {
-            d->muzzle = vec(-1, -1, -1);
-            if(weaps[d->weapselect].model) a[ai++] = modelattach("tag_muzzle", &d->muzzle);
+            a[ai++] = modelattach("tag_ltoe", &d->toe[0]);
+            a[ai++] = modelattach("tag_rtoe", &d->toe[1]);
         }
-        const char *mdlname = mdl.model;
-        float yaw = testanims && d==player1 ? 0 : d->yaw,
-              pitch = testpitch && d==player1 ? testpitch : d->pitch, roll = d->roll;
-        vec o = d->feetpos();
-        int basetime = 0, basetime2 = 0;
+
+        defformatstring(mdlname, "%s%s", mdl.model, third != 1 ? mnames[third] : "");
         if(animoverride) anim = (animoverride<0 ? ANIM_ALL : animoverride)|ANIM_LOOP;
         else if(d->state==CS_DEAD)
         {
@@ -268,23 +452,19 @@ namespace game
             else if(d->move>0) anim |= (ANIM_FORWARD|ANIM_LOOP)<<ANIM_SECONDARY;
             else if(d->move<0) anim |= (ANIM_BACKWARD|ANIM_LOOP)<<ANIM_SECONDARY;
 
-            if((anim&ANIM_INDEX)==ANIM_IDLE && (anim>>ANIM_SECONDARY)&ANIM_INDEX)
-            {
-                anim >>= ANIM_SECONDARY;
-                swap(basetime, basetime2);
-            }
+            if((anim&ANIM_INDEX)==ANIM_IDLE && (anim>>ANIM_SECONDARY)&ANIM_INDEX) anim >>= ANIM_SECONDARY;
         }
         if(!((anim>>ANIM_SECONDARY)&ANIM_INDEX)) anim |= (ANIM_IDLE|ANIM_LOOP)<<ANIM_SECONDARY;
         if(d != player1) flags |= MDL_CULL_VFC | MDL_CULL_OCCLUDED | MDL_CULL_QUERY;
-        if(d->type == ENT_PLAYER) flags |= MDL_FULLBRIGHT;
-        else flags |= MDL_CULL_DIST;
+        if(d->type != ENT_PLAYER) flags |= MDL_CULL_DIST;
         if(!mainpass) flags &= ~(MDL_FULLBRIGHT | MDL_CULL_VFC | MDL_CULL_OCCLUDED | MDL_CULL_QUERY | MDL_CULL_DIST);
-        rendermodel(mdlname, anim, o, yaw, pitch, roll, flags, d, a[0].tag ? a : NULL, basetime, basetime2, fade, vec4(vec::hexcolor(color), d->state == CS_LAGGED ? 0.5f : 1.0f));
+        dynent *e = third ? (third != 2 ? (dynent *)d : (dynent *)&bodymodel) : (dynent *)&avatarmodel;
+        rendermodel(mdlname, anim, o, yaw, third == 2 && firstpersonbodypitch >= 0 ? pitch*firstpersonbodypitch : pitch, third == 2 ? 0.f : roll, flags, e, a[0].tag ? a : NULL, basetime, basetime2, fade, vec4(vec::hexcolor(color), d->state == CS_LAGGED ? 0.5f : 1.0f));
     }
 
     static inline void renderplayer(gameent *d, float fade = 1, int flags = 0)
     {
-        renderplayer(d, getplayermodelinfo(d), getplayercolor(d), fade, flags);
+        renderplayer(d, getplayermodelinfo(d), 1, getplayercolor(d), fade, flags);
     }
 
     void rendergame()
@@ -319,90 +499,13 @@ namespace game
         renderprojectiles();
     }
 
-    VARP(hudweap, 0, 1, 1);
-    VARP(hudweapsway, 0, 1, 1);
-
-    FVAR(swaystep, 1, 35.0f, 100);
-    FVAR(swayside, 0, 0.10f, 1);
-    FVAR(swayup, -1, 0.15f, 1);
-
-    float swayfade = 0, swayspeed = 0, swaydist = 0;
-    vec swaydir(0, 0, 0);
-
-    void swayhudweap(int curtime)
-    {
-        gameent *d = hudplayer();
-        if(d->state != CS_SPECTATOR)
-        {
-            if(d->physstate >= PHYS_SLOPE)
-            {
-                swayspeed = min(sqrtf(d->vel.x*d->vel.x + d->vel.y*d->vel.y), d->maxspeed);
-                swaydist += swayspeed*curtime/1000.0f;
-                swaydist = fmod(swaydist, 2*swaystep);
-                swayfade = 1;
-            }
-            else if(swayfade > 0)
-            {
-                swaydist += swayspeed*swayfade*curtime/1000.0f;
-                swaydist = fmod(swaydist, 2*swaystep);
-                swayfade -= 0.5f*(curtime*d->maxspeed)/(swaystep*1000.0f);
-            }
-
-            float k = pow(0.7f, curtime/10.0f);
-            swaydir.mul(k);
-            vec vel(d->vel);
-            vel.add(d->falling);
-            swaydir.add(vec(vel).mul((1-k)/(15*max(vel.magnitude(), d->maxspeed))));
-        }
-    }
-
-    struct hudent : dynent
-    {
-        hudent() { type = ENT_CAMERA; }
-    } weapinterp;
-
-    void drawhudweap()
-    {
-        gameent *d = hudplayer();
-        if(d->state==CS_SPECTATOR || d->state==CS_EDITING || !hudweap || editmode)
-        {
-            d->muzzle = player1->muzzle = vec(-1, -1, -1);
-            return;
-        }
-        vec sway;
-        vecfromyawpitch(d->yaw, 0, 0, 1, sway);
-        float steps = swaydist/swaystep*M_PI;
-        sway.mul(swayside*cosf(steps));
-        sway.z = swayup*(fabs(sinf(steps)) - 1);
-        sway.add(swaydir).add(d->o);
-        if(!hudweapsway) sway = d->o;
-        d->muzzle = vec(-1, -1, -1);
-
-        const playermodelinfo &mdl = getplayermodelinfo(d);
-        int color = getplayercolor(d);
-        defformatstring(mdlname, "%s/hwep", mdl.model);
-        modelattach a[2];
-        int ai = 0, lastaction = d->lastaction, anim = ANIM_WEAP_IDLE|ANIM_LOOP, basetime = 0;
-        if(weaps[d->weapselect].model)
-        {
-            if(lastaction && d->lastattack >= 0 && attacks[d->lastattack].weap==d->weapselect && lastmillis < lastaction+attacks[d->lastattack].attackdelay+50)
-            {
-                anim = attacks[d->lastattack].hudanim;
-                basetime = lastaction;
-            }
-            defformatstring(weapname, "%s/hwep", mdl.model);
-            a[ai++] = modelattach("tag_weapon", weapname, anim, basetime);
-            a[ai++] = modelattach("tag_muzzle", &d->muzzle);
-        }
-        else a[ai++] = modelattach("taw_weapon", &d->muzzle);
-        rendermodel(mdlname, anim, sway, d->yaw, d->pitch, d->roll, MDL_NOBATCH, NULL, a, basetime, 0, 1, vec4(vec::hexcolor(color), 1));
-        if(d->muzzle.x >= 0) d->muzzle = calcavatarpos(d->muzzle, 12);
-    }
-
     void renderavatar()
     {
-        drawhudweap();
-    }
+        gameent *d = hudplayer();
+        renderplayer(d, getplayermodelinfo(d), 0, getplayercolor(d), 1, MDL_NOBATCH);
+        renderplayer(d, getplayermodelinfo(d), 2, getplayercolor(d), 1, MDL_NOBATCH, false);
+        if(d->muzzle.x >= 0) d->muzzle = calcavatarpos(d->muzzle, 12);
+   }
 
     void renderplayerpreview(int model, int color, int weap)
     {
@@ -458,6 +561,8 @@ namespace game
             preloadmodel(fname);
             formatstring(fname, "%s/vwep", file);
             preloadmodel(fname);
+            formatstring(fname, "%s/body", file);
+            preloadmodel(fname);
         }
     }
 
@@ -476,4 +581,3 @@ namespace game
     }
 
 }
-

@@ -1365,12 +1365,12 @@ VARP(invmouse, 0, 0, 1);
 FVARP(mouseaccel, 0, 0, 1000);
 
 VAR(thirdperson, 0, 0, 2);
-FVAR(thirdpersondistance, 0, 30, 50);
+FVAR(thirdpersondist, 0, 30, 50);
 FVAR(thirdpersonup, -25, 0, 25);
 FVAR(thirdpersonside, -25, 0, 25);
 physent *camera1 = NULL;
 bool detachedcamera = false;
-bool isthirdperson() { return player!=camera1 || detachedcamera; }
+bool isthirdperson() { return thirdperson; }
 
 void fixcamerarange()
 {
@@ -1390,7 +1390,6 @@ void modifyorient(float yaw, float pitch)
     {
         player->yaw = camera1->yaw;
         player->pitch = camera1->pitch;
-        player->roll = camera1->roll;
     }
 }
 
@@ -1422,60 +1421,32 @@ void recomputecamera()
     computezoom();
 
     bool shoulddetach = thirdperson > 1 || game::detachcamera();
+    static physent tempcamera;
+    if(tempcamera.type != ENT_CAMERA)
+    {
+        camera1 = &tempcamera;
+        camera1->reset();
+        camera1->type = ENT_CAMERA;
+        camera1->eyeheight = camera1->aboveeye = camera1->radius = camera1->xradius = camera1->yradius = 2;
+    }
     if(!thirdperson && !shoulddetach)
     {
-        camera1 = player;
         detachedcamera = false;
+        camera1->o = game::camerapos(player, true, true, player->yaw, player->pitch);
+        camera1->yaw = player->yaw;
+        camera1->pitch = player->pitch;
+        camera1->roll = player->roll;
     }
     else
     {
-        static physent tempcamera;
-        camera1 = &tempcamera;
-        if(detachedcamera && shoulddetach) camera1->o = player->o;
-        else
+        if(!detachedcamera)
         {
-            *camera1 = *player;
-            detachedcamera = shoulddetach;
+            camera1->o = game::thirdpos(player->o, player->yaw, player->pitch, thirdpersondist, thirdpersonside);
+            camera1->yaw = player->yaw;
+            camera1->pitch = player->pitch;
+            camera1->roll = 0;
         }
-        camera1->reset();
-        camera1->type = ENT_CAMERA;
-        camera1->move = -1;
-        camera1->eyeheight = camera1->aboveeye = camera1->radius = camera1->xradius = camera1->yradius = 2;
-
-        matrix3 orient;
-        orient.identity();
-        orient.rotate_around_z(camera1->yaw*RAD);
-        orient.rotate_around_x(camera1->pitch*RAD);
-        orient.rotate_around_y(camera1->roll*-RAD);
-        vec dir = vec(orient.b).neg(), side = vec(orient.a).neg(), up = orient.c;
-
-        if(game::collidecamera())
-        {
-            movecamera(camera1, dir, thirdpersondistance, 1);
-            movecamera(camera1, dir, clamp(thirdpersondistance - camera1->o.dist(player->o), 0.0f, 1.0f), 0.1f);
-            if(thirdpersonup)
-            {
-                vec pos = camera1->o;
-                float dist = fabs(thirdpersonup);
-                if(thirdpersonup < 0) up.neg();
-                movecamera(camera1, up, dist, 1);
-                movecamera(camera1, up, clamp(dist - camera1->o.dist(pos), 0.0f, 1.0f), 0.1f);
-            }
-            if(thirdpersonside)
-            {
-                vec pos = camera1->o;
-                float dist = fabs(thirdpersonside);
-                if(thirdpersonside < 0) side.neg();
-                movecamera(camera1, side, dist, 1);
-                movecamera(camera1, side, clamp(dist - camera1->o.dist(pos), 0.0f, 1.0f), 0.1f);
-            }
-        }
-        else
-        {
-            camera1->o.add(vec(dir).mul(thirdpersondistance));
-            if(thirdpersonup) camera1->o.add(vec(up).mul(thirdpersonup));
-            if(thirdpersonside) camera1->o.add(vec(side).mul(thirdpersonside));
-        }
+        detachedcamera = shoulddetach;
     }
 
     setviewcell(camera1->o);
