@@ -27,6 +27,7 @@ float FACINGANGLE = 150;
 float JUMPFORWARD = 45;
 float JUMPBACKWARD = 20;
 float JUMPUPWARD = 90;
+float JUMPSTRAFE = 0.25f;
 
 int JUMPDELAY = 500;
 int PARKOURMILLIS = 200;
@@ -1817,7 +1818,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
         }
         else
         {
-            if((onfloor || pl->sliding(lastmillis, SLIDETIME)) && pl->jumping)
+            if((onfloor || pl->sliding(lastmillis, SLIDETIME)) && pl->jumping && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY))
             {
                 if(pl->sliding(lastmillis, SLIDETIME))
                 {
@@ -1826,9 +1827,9 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                 }
                 else
                 {
-                    float mag = pl->vel.magnitude()+JUMPVEL;
+                    float mag = pl->vel.magnitude()+(JUMPVEL*(pl->strafe ? JUMPSTRAFE : 1.f));
                     vec dir;
-                    vecfromyawpitch(pl->yaw, pl->move ? (pl->move > 0 ? JUMPFORWARD : -JUMPBACKWARD) : JUMPUPWARD, pl->move ? pl->move : 1, pl->strafe, dir);
+                    vecfromyawpitch(pl->yaw, pl->move ? (pl->move > 0 ? JUMPFORWARD : -JUMPBACKWARD) : (pl->strafe ? JUMPFORWARD : JUMPUPWARD), pl->move ? pl->move : 1, pl->strafe, dir);
                     pl->vel = vec(dir).mul(mag);
                 }
                 if(water)
@@ -1838,13 +1839,14 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                 }
                 pl->falling = vec(0, 0, 0);
                 pl->jumping = onfloor = false;
+                pl->lastjump = lastmillis;
                 game::physicstrigger(pl, local, 1, 0);
             }
         }
         bool found = false;
         vec oldpos = pl->o, dir;
         const int movements[6][2] = { { 2, 2 }, { 1, 2 }, { 1, -1 }, { 1, 1 }, { 0, 2 }, { -1, 2 } };
-        loopi(pl->parkourside ? 6 : 4) // we do these insane checks so that running along walls works at all times
+        loopi(pl->parkourside ? 6 : (pl->parkouring ? 4 : 2)) // we do these insane checks so that running along walls works at all times
         {
             int move = movements[i][0], strafe = movements[i][1];
             if(move == 2) move = pl->move > 0 ? pl->move : 0;
