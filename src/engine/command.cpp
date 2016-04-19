@@ -1757,7 +1757,7 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
                     case 'V': comtype = CODE_COMV; if(more) while(numargs < MAXARGS && (more = compilearg(code, p, VAL_CANY, prevargs+numargs))) numargs++; goto compilecomv;
                     case '1': case '2': case '3': case '4':
                         if(more && numargs < MAXARGS)
-                        { 
+                        {
                             int numrep = *fmt-'0'+1;
                             fmt -= numrep;
                             rep = true;
@@ -3083,6 +3083,7 @@ bool validateblock(const char *s)
 #ifndef STANDALONE
 void writecfg(const char *name)
 {
+    return; // please use autoexec.cfg for now
     stream *f = openutf8file(path(name && name[0] ? name : game::savedconfig(), true), "w");
     if(!f) return;
     f->printf("// automatically written on exit, DO NOT MODIFY\n// delete this file to have %s overwrite these settings\n// modify settings in game, or put settings in %s to override anything\n\n", game::defaultconfig(), game::autoexec());
@@ -3800,7 +3801,7 @@ void findfile_(char *name)
     path(fname);
     intret(
 #ifndef STANDALONE
-        findzipfile(fname) || 
+        findzipfile(fname) ||
 #endif
         fileexists(fname, "e") || findfile(fname, "e") ? 1 : 0
     );
@@ -4062,7 +4063,7 @@ ICOMMAND(round, "ff", (float *n, float *k),
     }
     else r = r < 0 ? ceil(r - 0.5) : floor(r + 0.5);
     floatret(float(r));
-}); 
+});
 
 ICOMMAND(cond, "ee2V", (tagval *args, int numargs),
 {
