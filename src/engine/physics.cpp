@@ -1839,7 +1839,6 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                 }
                 pl->falling = vec(0, 0, 0);
                 pl->jumping = onfloor = false;
-                pl->lastjump = lastmillis;
                 game::physicstrigger(pl, local, 1, 0);
             }
         }
@@ -1903,7 +1902,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                             break;
                         }
                     }
-                    else if(pl->velxychk(RUNSPEED) && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY) && (!pl->lastupwall || lastmillis-pl->lastupwall > JUMPDELAY) && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURLENGTH))
+                    else if(pl->velxychk(RUNSPEED) && (!pl->lastupwall || lastmillis-pl->lastupwall > JUMPDELAY) && !pl->numparkour)
                     {
                         float mag = pl->vel.magnitude()+UPWALLVEL;
                         //pl->vel = vec(pl->yaw*RAD, 89.9f*RAD).reflect(face).mul(mag);
