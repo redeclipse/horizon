@@ -12,12 +12,12 @@ float SLOPEZ = 0.5f;
 float WALLZ = 0.2f;
 
 float JUMPVEL = 80;
-float LONGJUMPVEL = 225;
+float LONGJUMPVEL = 220;
 float GRAVITY = 200;
-float PARKOURVEL = 10;
+float PARKOURVEL = 12;
 float KICKVEL = 50;
-float VAULTVEL = 125;
-float UPWALLVEL = 5;
+float VAULTVEL = 120;
+float UPWALLVEL = 4;
 float SLIDEVEL = 20;
 
 float VAULTMIN = 0.5f;
@@ -29,7 +29,7 @@ float JUMPBACKWARD = 20;
 float JUMPUPWARD = 90;
 float JUMPSTRAFE = 0.25f;
 
-int JUMPDELAY = 500;
+int JUMPDELAY = 200;
 int PARKOURMILLIS = 200;
 int PARKOURLENGTH = 1000;
 int PARKOURCOUNT = 2;
@@ -41,7 +41,7 @@ float UPWALLANGLE = 90;
 float LONGJUMPMIN = 20;
 float LONGJUMPMAX = 45;
 int SLIDEDELAY = 2000;
-int SLIDETIME = 500;
+int SLIDETIME = 600;
 
 float LIQUIDSPEED = 0.85f;
 float STRAFESCALE = 0.8f;
@@ -1763,7 +1763,8 @@ void vectoyawpitch(const vec &v, float &yaw, float &pitch)
 
 #define PHYSFRAMETIME 8
 
-VAR(floatspeed, 1, 100, 10000);
+VAR(floatspeed, 1, 200, 10000);
+FVAR(floatcoast, 1, 10, 10000);
 
 void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curtime)
 {
@@ -1968,7 +1969,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
         }
         else if(pl->crouching && !pl->sliding(lastmillis, SLIDETIME)) d.mul(CROUCHSCALE);
     }
-    float coast = water && !floating ? WATERCOAST : (pl->parkourside ? PARKOURCOAST : (pl->sliding(lastmillis, SLIDETIME) ? SLIDECOAST : (onfloor || floating ? (pl->velxychk(RUNSPEED) ? RUNNINGCOAST : FLOORCOAST) : AIRCOAST)));
+    float coast = floating ? floatcoast : (water ? WATERCOAST : (pl->parkourside ? PARKOURCOAST : (pl->sliding(lastmillis, SLIDETIME) ? SLIDECOAST : (onfloor ? (pl->velxychk(RUNSPEED) ? RUNNINGCOAST : FLOORCOAST) : AIRCOAST))));
     pl->vel.lerp(d, pl->vel, pow(1 - 1/coast, curtime/20.0f));
 }
 

@@ -5,7 +5,7 @@ extern int outline;
 bool boxoutline = false;
 
 void boxs(int orient, vec o, const vec &s, float size)
-{   
+{
     int d = dimension(orient), dc = dimcoord(orient);
     float f = boxoutline ? (dc>0 ? 0.2f : -0.2f) : 0;
     o[D[d]] += dc * s[D[d]] + f;
@@ -483,10 +483,8 @@ void rendereditcursor()
 
     if(!moving && !hovering && !hidecursor)
     {
-        if(hmapedit==1)
-            gle::colorub(0, hmapsel ? 255 : 40, 0);
-        else
-            gle::colorub(120,120,120);
+        if(hmapedit==1) gle::colorub(0, hmapsel ? 255 : 64, 0);
+        else gle::colorub(255, 255, 255);
         boxs(orient, vec(lu), vec(lusize));
     }
 
@@ -494,11 +492,11 @@ void rendereditcursor()
     if(havesel || moving)
     {
         d = dimension(sel.orient);
-        gle::colorub(50,50,50);   // grid
+        gle::colorub(128, 128, 128);   // grid
         boxsgrid(sel.orient, vec(sel.o), vec(sel.s), sel.grid);
-        gle::colorub(200,0,0);    // 0 reference
+        gle::colorub(255, 0, 0);    // 0 reference
         boxs3D(vec(sel.o).sub(0.5f*min(gridsize*0.25f, 2.0f)), vec(min(gridsize*0.25f, 2.0f)), 1);
-        gle::colorub(200,200,200);// 2D selection box
+        gle::colorub(255, 255, 255);// 2D selection box
         vec co(sel.o.v), cs(sel.s.v);
         co[R[d]] += 0.5f*(sel.cx*gridsize);
         co[C[d]] += 0.5f*(sel.cy*gridsize);
@@ -507,9 +505,9 @@ void rendereditcursor()
         cs[D[d]] *= gridsize;
         boxs(sel.orient, co, cs);
         if(hmapedit==1)         // 3D selection box
-            gle::colorub(0,120,0);
+            gle::colorub(0, 255, 0);
         else
-            gle::colorub(0,0,120);
+            gle::colorub(0, 0, 255);
         boxs3D(vec(sel.o), vec(sel.s), sel.grid);
     }
 
@@ -784,7 +782,7 @@ static inline int countblock(cube *c, int n = 8)
     loopi(n) if(c[i].children) r += countblock(c[i].children);
     return r;
 }
-                
+
 static int countblock(block3 *b) { return countblock(b->c(), b->size()); }
 
 void swapundo(undolist &a, undolist &b, int op)
@@ -806,7 +804,7 @@ void swapundo(undolist &a, undolist &b, int op)
                 break;
             }
         }
-    } 
+    }
     selinfo l = sel;
     while(!a.empty() && ts==a.last->timestamp)
     {
@@ -903,7 +901,7 @@ static void packvslots(cube &c, vector<uchar> &buf, vector<ushort> &used)
         {
             used.add(index);
             VSlot &vs = *vslots[index];
-            vslothdr &hdr = *(vslothdr *)buf.pad(sizeof(vslothdr));         
+            vslothdr &hdr = *(vslothdr *)buf.pad(sizeof(vslothdr));
             hdr.index = index;
             hdr.slot = vs.slot->index;
             lilswap(&hdr.index, 2);
@@ -976,7 +974,7 @@ static void unpackvslots(cube &c, ucharbuf &buf)
     else loopi(6)
     {
         ushort tex = c.texture[i];
-        loopvj(unpackingvslots) if(unpackingvslots[j].index == tex) { c.texture[i] = unpackingvslots[j].vslot->index; break; } 
+        loopvj(unpackingvslots) if(unpackingvslots[j].index == tex) { c.texture[i] = unpackingvslots[j].vslot->index; break; }
     }
 }
 
@@ -1000,7 +998,7 @@ static void unpackvslots(block3 &b, ucharbuf &buf)
 
     unpackingvslots.setsize(0);
 }
- 
+
 static bool compresseditinfo(const uchar *inbuf, int inlen, uchar *&outbuf, int &outlen)
 {
     uLongf len = compressBound(inlen);
@@ -1080,7 +1078,7 @@ bool packundo(undoblock *u, int &inlen, uchar *&outbuf, int &outlen)
             entity &e = *(entity *)buf.pad(sizeof(entity));
             e = ue[i].e;
             lilswap(&e.o.x, 3);
-            lilswap(&e.attr1, 5); 
+            lilswap(&e.attr1, 5);
         }
     }
     else
@@ -1140,7 +1138,7 @@ bool unpackundo(const uchar *inbuf, int inlen, int outlen)
 bool packundo(int op, int &inlen, uchar *&outbuf, int &outlen)
 {
     switch(op)
-    { 
+    {
         case EDIT_UNDO: return !undos.empty() && packundo(undos.last, inlen, outbuf, outlen);
         case EDIT_REDO: return !redos.empty() && packundo(redos.last, inlen, outbuf, outlen);
         default: return false;
@@ -1515,7 +1513,7 @@ struct vslotref
     ~vslotref() { editingvslots.pop(); }
 };
 #define editingvslot(...) vslotref vslotrefs[] = { __VA_ARGS__ }; (void)vslotrefs;
- 
+
 void compacteditvslots()
 {
     loopv(editingvslots) if(*editingvslots[i]) compactvslot(*editingvslots[i]);
@@ -2170,7 +2168,7 @@ bool mpeditvslot(int delta, int allfaces, selinfo &sel, ucharbuf &buf)
     mpeditvslot(delta, ds, allfaces, sel, false);
     return true;
 }
- 
+
 VAR(allfaces, 0, 0, 1);
 VAR(usevdelta, 1, 0, 0);
 
@@ -2345,7 +2343,7 @@ int shouldpacktex(int index)
     }
     return 0;
 }
-        
+
 bool mpedittex(int tex, int allfaces, selinfo &sel, ucharbuf &buf)
 {
     if(!unpacktex(tex, buf)) return false;

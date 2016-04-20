@@ -574,7 +574,7 @@ void entselectionbox(const entity &e, vec &eo, vec &es)
     es.mul(2);
 }
 
-VAR(entselsnap, 0, 0, 1);
+VAR(entselsnap, 0, 1, 1);
 VAR(entmovingshadow, 0, 1, 1);
 
 extern void boxs(int orient, vec o, const vec &s, float size);
@@ -839,7 +839,7 @@ void renderentselection(const vec &o, const vec &ray, bool entmoving)
 
     if(entgroup.length())
     {
-        gle::colorub(0, 40, 0);
+        gle::colorub(0, 128, 0);
         gle::defvertex();
         gle::begin(GL_LINES, entgroup.length()*24);
         loopv(entgroup) entfocus(entgroup[i],
@@ -851,18 +851,18 @@ void renderentselection(const vec &o, const vec &ray, bool entmoving)
 
     if(enthover >= 0)
     {
-        gle::colorub(0, 40, 0);
+        gle::colorub(0, 128, 0);
         entfocus(enthover, entselectionbox(e, eo, es)); // also ensures enthover is back in focus
         boxs3D(eo, es, 1);
         if(entmoving && entmovingshadow==1)
         {
             vec a, b;
-            gle::colorub(20, 20, 20);
+            gle::colorub(64, 64, 64);
             (a = eo).x = eo.x - fmod(eo.x, worldsize); (b = es).x = a.x + worldsize; boxs3D(a, b, 1);
             (a = eo).y = eo.y - fmod(eo.y, worldsize); (b = es).y = a.x + worldsize; boxs3D(a, b, 1);
             (a = eo).z = eo.z - fmod(eo.z, worldsize); (b = es).z = a.x + worldsize; boxs3D(a, b, 1);
         }
-        gle::colorub(200,0,0);
+        gle::colorub(255, 0, 0);
         boxs(entorient, eo, es);
         boxs(entorient, eo, es, clamp(0.015f*camera1->o.dist(eo)*tan(fovy*0.5f*RAD), 0.1f, 1.0f));
     }
@@ -870,10 +870,11 @@ void renderentselection(const vec &o, const vec &ray, bool entmoving)
     if(showentradius)
     {
         glDepthFunc(GL_GREATER);
-        gle::colorf(0.25f, 0.25f, 0.25f);
+        gle::colorf(1, 1, 1);
         loopv(entgroup) entfocus(entgroup[i], renderentradius(e, false));
         if(enthover>=0) entfocus(enthover, renderentradius(e, false));
         glDepthFunc(GL_LESS);
+        gle::colorf(0, 0, 0);
         loopv(entgroup) entfocus(entgroup[i], renderentradius(e, true));
         if(enthover>=0) entfocus(enthover, renderentradius(e, true));
     }
