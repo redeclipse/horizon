@@ -2389,13 +2389,6 @@ ICOMMAND(getcrosshair, "i", (int *i),
     result(name);
 });
 
-void writecrosshairs(stream *f)
-{
-    loopi(MAXCROSSHAIRS) if(crosshairs[i] && crosshairs[i]!=notexture)
-        f->printf("loadcrosshair %s %d\n", escapestring(crosshairs[i]->name), i);
-    f->printf("\n");
-}
-
 void drawcrosshair(int w, int h)
 {
     bool windowhit = UI::hascursor();

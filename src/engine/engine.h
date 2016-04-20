@@ -175,7 +175,6 @@ extern void zerofogcolor();
 extern void resetfogcolor();
 extern float calcfogdensity(float dist);
 extern float calcfogcull();
-extern void writecrosshairs(stream *f);
 extern void renderavatar();
 
 namespace modelpreview
