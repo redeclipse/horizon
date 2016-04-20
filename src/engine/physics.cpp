@@ -1913,7 +1913,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                         break;
                     }
                 }
-                if(pl->parkourside || (!facing && pl->parkouring && !onfloor && pl->numparkour < PARKOURCOUNT && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURLENGTH) && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY)))
+                if(pl->parkourside || (!facing && pl->parkouring && !onfloor && pl->numparkour < PARKOURCOUNT && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY) && (!pl->lastparkour || lastmillis-pl->lastparkour > PARKOURLENGTH)))
                 {
                     int side = off < 0 ? -1 : 1;
                     if(off < 0) yaw += 90;
