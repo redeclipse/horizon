@@ -542,10 +542,10 @@ namespace game
         loopv(players)
         {
             gameent *d = players[i];
-            if(d == player1 || d->state==CS_SPECTATOR || d->state==CS_SPAWNING || d->lifesequence < 0 || d == exclude || (d->state==CS_DEAD && hidedead)) continue;
+            if(d == player1 || d->state == CS_SPECTATOR || d->state == CS_SPAWNING || d->lifesequence < 0 || d == exclude || (d->state == CS_DEAD && hidedead)) continue;
             renderplayer(d);
             copystring(d->info, colorname(d));
-            if(d->state!=CS_DEAD)
+            if(d->state != CS_DEAD)
                 particle_text(d->abovehead(), d->info, PART_TEXT, 1, 0xFFFFFF, 2.0f);
         }
         loopv(ragdolls)
@@ -558,7 +558,7 @@ namespace game
         }
         if(exclude)
             renderplayer(exclude, 1, MDL_ONLYSHADOW);
-        else if(!f && (player1->state==CS_ALIVE || (player1->state==CS_EDITING && third) || (player1->state==CS_DEAD && !hidedead)))
+        else if(!f && (player1->state == CS_ALIVE || (player1->state == CS_EDITING && third) || (player1->state==CS_DEAD && !hidedead)))
             renderplayer(player1, 1, third ? 0 : MDL_ONLYSHADOW);
         entities::renderentities();
         renderbouncers();
@@ -567,6 +567,7 @@ namespace game
 
     void renderavatar()
     {
+        if(player1->state == CS_EDITING) return;
         gameent *d = hudplayer();
         if(firstpersonmodel) renderplayer(d, getplayermodelinfo(d), 0, getplayercolor(d), 1, MDL_NOBATCH);
         if(firstpersonmodel == 2) renderplayer(d, getplayermodelinfo(d), 2, getplayercolor(d), 1, MDL_NOBATCH, false);
