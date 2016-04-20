@@ -526,7 +526,6 @@ namespace game
         if(!mainpass) flags &= ~(MDL_FULLBRIGHT | MDL_CULL_VFC | MDL_CULL_OCCLUDED | MDL_CULL_QUERY | MDL_CULL_DIST);
         dynent *e = third ? (third != 2 ? (dynent *)d : (dynent *)&bodymodel) : (dynent *)&avatarmodel;
         rendermodel(mdlname, anim, o, yaw, third == 2 ? pitch*firstpersonbodypitch : pitch, third == 2 ? 0.f : roll, flags, e, a[0].tag ? a : NULL, basetime, basetime2, fade, vec4(vec::hexcolor(color), d->state == CS_LAGGED ? 0.5f : 1.0f));
-        conoutf("mdl: %s %d %.2f,%.2f,%.2f %.2f/%.2f/%.2f [%d]", mdlname, anim, o.x, o.y, o.z, yaw, third == 2 ? pitch*firstpersonbodypitch : pitch, third == 2 ? 0.f : roll, flags);
     }
 
     static inline void renderplayer(gameent *d, float fade = 1, int flags = 0)
