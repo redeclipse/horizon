@@ -1323,15 +1323,13 @@ void pushhudtranslate(float tx, float ty, float sx, float sy)
 }
 
 int vieww = -1, viewh = -1;
-float curfov, curavatarfov, fovy, aspect;
+float curfov, fovy, aspect;
 int farplane;
 VARP(zoominvel, 0, 40, 500);
 VARP(zoomoutvel, 0, 50, 500);
 VARP(zoomfov, 10, 42, 90);
 VARP(fov, 10, 100, 150);
-VAR(avatarzoomfov, 1, 1, 1);
-VAR(avatarfov, 10, 40, 100);
-FVAR(avatardepth, 0, 0.7f, 1);
+FVAR(avatardepth, 0, 0.65f, 1);
 FVARNP(aspect, forceaspect, 0, 0, 1e3f);
 
 static float zoomprogress = 0;
@@ -1345,7 +1343,7 @@ void disablezoom()
 
 void computezoom()
 {
-    if(!zoom) { zoomprogress = 0; curfov = fov; curavatarfov = avatarfov; return; }
+    if(!zoom) { zoomprogress = 0; curfov = fov; return; }
     if(zoom > 0) zoomprogress = zoominvel ? min(zoomprogress + float(elapsedtime) / zoominvel, 1.0f) : 1;
     else
     {
@@ -1353,7 +1351,6 @@ void computezoom()
         if(zoomprogress <= 0) zoom = 0;
     }
     curfov = zoomfov*zoomprogress + fov*(1 - zoomprogress);
-    curavatarfov = avatarzoomfov*zoomprogress + avatarfov*(1 - zoomprogress);
 }
 
 FVARP(zoomsens, 1e-4f, 4.5f, 1e4f);
@@ -1461,7 +1458,7 @@ vec calcavatarpos(const vec &pos, float dist)
 {
     vec eyepos;
     cammatrix.transform(pos, eyepos);
-    GLdouble ydist = nearplane * tan(curavatarfov/2*RAD), xdist = ydist * aspect;
+    GLdouble ydist = nearplane * tan(curfov/2*RAD), xdist = ydist * aspect;
     vec4 scrpos;
     scrpos.x = eyepos.x*nearplane/xdist;
     scrpos.y = eyepos.y*nearplane/ydist;
@@ -1478,7 +1475,7 @@ void renderavatar()
     if(isthirdperson()) return;
 
     matrix4 oldprojmatrix = nojittermatrix;
-    projmatrix.perspective(curavatarfov, aspect, nearplane, farplane);
+    //projmatrix.perspective(curfov, aspect, nearplane, farplane);
     projmatrix.scalez(avatardepth);
     setcamprojmatrix(false);
 

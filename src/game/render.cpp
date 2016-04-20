@@ -169,13 +169,13 @@ namespace game
     VAR(testanims, 0, 0, 1);
     VAR(testpitch, -90, 0, 90);
 
-    VARP(firstpersonmodel, 0, 2, 2);
+    VARP(firstpersonmodel, 0, 2, 3);
 
-    FVAR(firstpersonspine, 0, 0.5f, 1);
+    FVAR(firstpersonspine, 0, 0.45f, 1);
     FVAR(firstpersonbodydist, -10, 0, 10);
     FVAR(firstpersonbodyside, -10, 0, 10);
     FVAR(firstpersonbodypitch, -1, 1, 1);
-    FVAR(firstpersonbodyz, 0, 7, 10);
+    FVAR(firstpersonbodyz, 0, 0, 10);
 
     FVAR(firstpersonpitchmin, 0, 90, 90);
     FVAR(firstpersonpitchmax, 0, 45, 90);
@@ -451,14 +451,14 @@ namespace game
 
         defformatstring(mdlname, "%s%s", mdl.model, third != 1 ? mnames[third] : "");
         if(animoverride) anim = (animoverride<0 ? ANIM_ALL : animoverride)|ANIM_LOOP;
-        else if(d->state==CS_DEAD)
+        else if(d->state == CS_DEAD)
         {
             anim = ANIM_DYING|ANIM_NOPITCH;
             basetime = d->lastpain;
             if(ragdoll && mdl.ragdoll) anim |= ANIM_RAGDOLL;
             else if(lastmillis-basetime>1000) anim = ANIM_DEAD|ANIM_LOOP|ANIM_NOPITCH;
         }
-        else if(d->state==CS_EDITING || d->state==CS_SPECTATOR) anim = ANIM_EDIT|ANIM_LOOP;
+        else if(d->state == CS_EDITING || d->state == CS_SPECTATOR) anim = ANIM_EDIT|ANIM_LOOP;
         else if(!intermission && game::allowmove(d))
         {
             if(lastmillis-d->lastpain < 300)
@@ -526,6 +526,7 @@ namespace game
         if(!mainpass) flags &= ~(MDL_FULLBRIGHT | MDL_CULL_VFC | MDL_CULL_OCCLUDED | MDL_CULL_QUERY | MDL_CULL_DIST);
         dynent *e = third ? (third != 2 ? (dynent *)d : (dynent *)&bodymodel) : (dynent *)&avatarmodel;
         rendermodel(mdlname, anim, o, yaw, third == 2 ? pitch*firstpersonbodypitch : pitch, third == 2 ? 0.f : roll, flags, e, a[0].tag ? a : NULL, basetime, basetime2, fade, vec4(vec::hexcolor(color), d->state == CS_LAGGED ? 0.5f : 1.0f));
+        conoutf("mdl: %s %d %.2f,%.2f,%.2f %.2f/%.2f/%.2f [%d]", mdlname, anim, o.x, o.y, o.z, yaw, third == 2 ? pitch*firstpersonbodypitch : pitch, third == 2 ? 0.f : roll, flags);
     }
 
     static inline void renderplayer(gameent *d, float fade = 1, int flags = 0)
@@ -567,10 +568,10 @@ namespace game
 
     void renderavatar()
     {
-        if(player1->state == CS_EDITING) return;
+        if(player1->state == CS_EDITING || player1->state == CS_SPECTATOR || player1->state == CS_DEAD) return;
         gameent *d = hudplayer();
-        if(firstpersonmodel) renderplayer(d, getplayermodelinfo(d), 0, getplayercolor(d), 1, MDL_NOBATCH);
-        if(firstpersonmodel == 2) renderplayer(d, getplayermodelinfo(d), 2, getplayercolor(d), 1, MDL_NOBATCH, false);
+        if(firstpersonmodel&1) renderplayer(d, getplayermodelinfo(d), 0, getplayercolor(d), 1, MDL_NOBATCH);
+        if(firstpersonmodel&2) renderplayer(d, getplayermodelinfo(d), 2, getplayercolor(d), 1, MDL_NOBATCH, false);
         if(d->muzzle.x >= 0) d->muzzle = calcavatarpos(d->muzzle, 12);
    }
 
@@ -608,7 +609,7 @@ namespace game
             return offset;
         }
         offset.add(vec(to).sub(from).normalize().mul(2));
-        if(firstpersonmodel)
+        if(firstpersonmodel&1)
         {
             offset.sub(vec(camup).mul(1.0f));
             offset.add(vec(camright).mul(0.8f));
