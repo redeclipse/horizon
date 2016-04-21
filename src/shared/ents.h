@@ -115,7 +115,7 @@ struct physent                                  // base entity type, can be affe
     vec headpos(float offset = 0) const { return vec(o).addz(offset); }
 
     bool crouched() const { return fabs(eyeheight - maxheight*CROUCHHEIGHT) < 1e-4f; }
-    bool sliding(int millis, int delay) const { return crouching && lastslide && millis-lastslide <= delay; }
+    bool sliding(int millis, int delay, bool check = false) const { return crouching && physstate >= PHYS_SLOPE && (check ? lastslide > 0 : lastslide != 0) && millis-abs(lastslide) <= delay; }
     bool velxychk(float speed) const { return sqrtf(vel.x*vel.x+vel.y*vel.y) >= speed; }
 };
 

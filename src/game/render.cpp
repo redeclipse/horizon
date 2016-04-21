@@ -476,17 +476,16 @@ namespace game
             else if(d->parkourside) anim |= ((d->parkourside>0 ? ANIM_WALL_RUN_LEFT : ANIM_WALL_RUN_RIGHT)|ANIM_LOOP)<<ANIM_SECONDARY;
             else if(d->sliding(lastmillis, SLIDETIME))
             {
-                basetime2 = d->lastslide;
+                basetime2 = abs(d->lastslide);
                 anim |= (ANIM_SLIDE|ANIM_LOOP)<<ANIM_SECONDARY;
             }
             else if(d->physstate == PHYS_FALL && d->timeinair >= 50)
             {
                 basetime2 = lastmillis-d->timeinair;
-                bool jump = (d->lastjump && lastmillis-d->lastjump <= JUMPDELAY/2), upwall = (d->lastupwall && lastmillis-d->lastupwall <= JUMPDELAY), climb = d->lastclimb > 0;
-                if(jump || upwall || climb)
+                if(d->lastjump && lastmillis-d->lastjump <= JUMPDELAY)
                 {
                     anim |= (ANIM_WALL_JUMP|ANIM_LOOP)<<ANIM_SECONDARY;
-                    basetime2 = jump ? d->lastjump : (upwall ? d->lastupwall : d->lastclimb);
+                    basetime2 = d->lastjump;
                 }
                 if(d->crouching)
                 {

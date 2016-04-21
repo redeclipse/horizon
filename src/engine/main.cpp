@@ -102,7 +102,7 @@ VARFN(screenh, scr_h, SCR_MINH, -1, SCR_MAXH, initwarning("screen resolution"));
 
 void writeinitcfg()
 {
-    stream *f = openutf8file("config/init.cfg", "w");
+    stream *f = openutf8file("init.cfg", "w");
     if(!f) return;
     f->printf("// automatically written on exit, DO NOT MODIFY\n// modify settings in game\n");
     extern int fullscreen;
@@ -1022,7 +1022,7 @@ int main(int argc, char **argv)
             }
         }
     }
-    execfile("config/init.cfg", false);
+    execfile("init.cfg", false);
     for(int i = 1; i<argc; i++)
     {
         if(argv[i][0]=='-') switch(argv[i][1])

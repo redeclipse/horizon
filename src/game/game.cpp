@@ -728,7 +728,7 @@ namespace game
 
     void loadconfigs()
     {
-        execfile("config/auth.cfg", false);
+        execfile("auth.cfg", false);
     }
 
     bool clientoption(const char *arg) { return false; }

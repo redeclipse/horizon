@@ -1851,14 +1851,15 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                     }
                     if(facing && pl->parkouring && !onfloor && (!pl->lastjump || lastmillis-pl->lastupwall > JUMPDELAY))
                     {
-                        float mag = pl->vel.magnitude()+KICKVEL;
-                        float yaw = pl->yaw+180;
-                        while(yaw >= 360) yaw -= 360;
-                        while(yaw < 0) yaw += 360;
-                        m = vec(yaw*RAD, JUMPFORWARD*RAD);
-                        pl->vel = vec(m).mul(mag);
+                        vec cdir = vec(pl->yaw*RAD, JUMPFORWARD*RAD).reflect(face);
+                        float mag = pl->vel.magnitude()+KICKVEL, yaw = 0, pitch = 0;
+                        vectoyawpitch(cdir, yaw, pitch);
+                        m = cdir;
+                        pl->vel = vec(cdir).mul(mag);
                         pl->turnmillis = PARKOURMILLIS;
-                        pl->turnyaw = 180;
+                        pl->turnyaw = yaw-pl->yaw;
+                        while(pl->turnyaw < 180) pl->turnyaw += 360;
+                        while(pl->turnyaw > 180) pl->turnyaw -= 360;
                         pl->turnroll = 0;
                         pl->lastjump = lastmillis;
                         game::physicstrigger(pl, local, 1, 0);
@@ -1874,7 +1875,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                         {
                             float mag = pl->vel.magnitude()+CLIMBUPVEL;
                             if(onfloor) mag += CLIMBUPVEL;
-                            pl->vel = cdir.mul(mag);
+                            pl->vel = vec(cdir).mul(mag);
                             pl->turnmillis = PARKOURMILLIS;
                             pl->turnyaw = pl->turnroll = 0;
                             pl->lastclimb = lastmillis;
@@ -1955,9 +1956,10 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
         }
         else if(pl->lastclimb <= 0)
         {
-            if((onfloor || pl->sliding(lastmillis, SLIDETIME)) && pl->jumping && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY))
+            bool sliding = pl->sliding(lastmillis, SLIDETIME, true);
+            if((onfloor || sliding) && pl->jumping && (!pl->lastjump || lastmillis-pl->lastjump > JUMPDELAY))
             {
-                if(pl->sliding(lastmillis, SLIDETIME))
+                if(sliding)
                 {
                     float mag = pl->vel.magnitude()+LONGJUMPVEL;
                     pl->vel = vec(pl->yaw*RAD, clamp(pl->pitch, LONGJUMPMIN, LONGJUMPMAX)*RAD).mul(mag);
@@ -1976,6 +1978,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
                 }
                 pl->falling = vec(0, 0, 0);
                 pl->jumping = onfloor = false;
+                pl->lastslide = -pl->lastslide;
                 game::physicstrigger(pl, local, 1, 0);
             }
         }
@@ -2096,7 +2099,7 @@ bool moveplayer(physent *pl, int moveres, bool local, int curtime)
             if(timeinair > 800 && !water) // if we land after long time must have been a high jump, make thud sound
                 game::physicstrigger(pl, local, -1, 0);
         }
-        if(!pl->timeinair && !water && pl->crouching < 0 && pl->physstate >= PHYS_SLOPE && (!pl->lastslide || lastmillis-pl->lastslide > SLIDEDELAY) && pl->velxychk(SLIDESPEED))
+        if(!pl->timeinair && !water && pl->crouching < 0 && pl->physstate >= PHYS_SLOPE && (!pl->lastslide || lastmillis-abs(pl->lastslide) > SLIDEDELAY) && pl->velxychk(SLIDESPEED))
         {
             float mag = pl->vel.magnitude()+SLIDEVEL;
             pl->vel = vec(pl->yaw*RAD, 0.f).mul(mag);
