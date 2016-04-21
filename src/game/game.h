@@ -22,7 +22,7 @@ enum
 
 static const char * const animnames[] =
 {
-    "mapmodel", "dead", "dying", "idle",
+    "mapmodel", "trigger on", "trigger off", "dead", "dying", "idle",
     "forward", "backward", "left", "right",
     "run forward", "run backward", "run left", "run right",
     "jump forward", "jump backward", "jump left", "jump right", "jump",

@@ -122,6 +122,8 @@ struct physent                                  // base entity type, can be affe
 enum
 {
     ANIM_MAPMODEL = 0,
+    ANIM_TRIGGER_ON,
+    ANIM_TRIGGER_OFF,
     ANIM_GAMESPECIFIC
 };
 
