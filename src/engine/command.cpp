@@ -535,19 +535,19 @@ ICOMMAND(alias, "sT", (const char *name, tagval *v),
 
 int variable(const char *name, int min, int cur, int max, int *storage, identfun fun, int flags)
 {
-    addident(ident(ID_VAR, name, min, max, storage, (void *)fun, flags));
+    addident(ident(ID_VAR, name, min, cur, max, storage, (void *)fun, flags));
     return cur;
 }
 
 float fvariable(const char *name, float min, float cur, float max, float *storage, identfun fun, int flags)
 {
-    addident(ident(ID_FVAR, name, min, max, storage, (void *)fun, flags));
+    addident(ident(ID_FVAR, name, min, cur, max, storage, (void *)fun, flags));
     return cur;
 }
 
 char *svariable(const char *name, const char *cur, char **storage, identfun fun, int flags)
 {
-    addident(ident(ID_SVAR, name, storage, (void *)fun, flags));
+    addident(ident(ID_SVAR, name, newstring(cur), storage, (void *)fun, flags));
     return newstring(cur);
 }
 
@@ -3086,7 +3086,7 @@ void writecfg(const char *name)
     return; // please use autoexec.cfg for now
     stream *f = openutf8file(path(name && name[0] ? name : game::savedconfig(), true), "w");
     if(!f) return;
-    f->printf("// automatically written on exit, DO NOT MODIFY\n// delete this file to have %s overwrite these settings\n// modify settings in game, or put settings in %s to override anything\n\n", game::defaultconfig(), game::autoexec());
+    f->printf("// automatically written by the game\n\n");
     game::writeclientinfo(f);
     f->printf("\n");
     vector<ident *> ids;
@@ -3097,12 +3097,13 @@ void writecfg(const char *name)
         ident &id = *ids[i];
         if(id.flags&IDF_PERSIST) switch(id.type)
         {
-            case ID_VAR: f->printf("%s %d\n", escapeid(id), *id.storage.i); break;
-            case ID_FVAR: f->printf("%s %s\n", escapeid(id), floatstr(*id.storage.f)); break;
-            case ID_SVAR: f->printf("%s %s\n", escapeid(id), escapestring(*id.storage.s)); break;
+            case ID_VAR: if(*id.storage.i != id.def.i) f->printf("%s %d\n", escapeid(id), *id.storage.i); break;
+            case ID_FVAR: if(*id.storage.f != id.def.f) f->printf("%s %s\n", escapeid(id), floatstr(*id.storage.f)); break;
+            case ID_SVAR: if(strcmp(*id.storage.s, id.def.s)) f->printf("%s %s\n", escapeid(id), escapestring(*id.storage.s)); break;
         }
     }
     f->printf("\n");
+    #if 0
     writebinds(f);
     f->printf("\n");
     loopv(ids)
@@ -3120,6 +3121,7 @@ void writecfg(const char *name)
     }
     f->printf("\n");
     writecompletions(f);
+    #endif
     delete f;
 }
 

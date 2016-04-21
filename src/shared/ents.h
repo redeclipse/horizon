@@ -50,10 +50,10 @@ enum { ENT_PLAYER = 0, ENT_CAMERA, ENT_BOUNCE };
 enum { COLLIDE_NONE = 0, COLLIDE_ELLIPSE, COLLIDE_OBB, COLLIDE_TRI };
 
 extern float STAIRHEIGHT, FLOORZ, SLOPEZ, WALLZ;
-extern float JUMPVEL, LONGJUMPVEL, GRAVITY, PARKOURVEL, KICKVEL, VAULTVEL, UPWALLVEL, SLIDEVEL;
-extern float VAULTMIN, VAULTMAX, FACINGANGLE, JUMPFORWARD, JUMPBACKWARD, JUMPUPWARD, JUMPSTRAFE;
-extern int JUMPDELAY, PARKOURMILLIS, PARKOURLENGTH, PARKOURCOUNT, SLIDETIME, SLIDEDELAY;
-extern float PARKOURROLL, PARKOURANGLE, VAULTANGLE, UPWALLANGLE, LONGJUMPMIN, LONGJUMPMAX, KICKMAX;
+extern float JUMPVEL, LONGJUMPVEL, GRAVITY, PARKOURVEL, KICKVEL, CLIMBVEL, CLIMBUPVEL, CLIMBSCALE, UPWALLVEL, SLIDEVEL;
+extern float CLIMBMIN, CLIMBMAX, FACINGANGLE, JUMPFORWARD, JUMPBACKWARD, JUMPUPWARD, JUMPSTRAFE;
+extern int JUMPDELAY, PARKOURMILLIS, PARKOURLENGTH, CLIMBLENGTH, PARKOURCOUNT, SLIDETIME, SLIDEDELAY;
+extern float PARKOURROLL, PARKOURANGLE, CLIMBANGLE, UPWALLANGLE, LONGJUMPMIN, LONGJUMPMAX, KICKMAX;
 extern float LIQUIDSPEED, STRAFESCALE, BACKPEDALSCALE, RUNSPEED, SLIDESPEED, RUNSCALE, PARKOURSCALE;
 extern float WATERCOAST, FLOORCOAST, RUNNINGCOAST, AIRCOAST, PARKOURCOAST, SLIDECOAST;
 extern int CROUCHTIME;
@@ -66,7 +66,7 @@ struct physent                                  // base entity type, can be affe
     float yaw, pitch, roll;
     float maxspeed;                             // cubes per second, 100 for player
     int timeinair, parkourside, turnmillis;
-    int lastparkour, lastjump, lastupwall, lastslide, numparkour;
+    int lastparkour, lastjump, lastupwall, lastclimb, lastslide, numparkour;
     float turnyaw, turnroll;
     float radius, eyeheight, maxheight, aboveeye; // bounding box size
     float xradius, yradius, zmargin;
@@ -102,7 +102,7 @@ struct physent                                  // base entity type, can be affe
         timeinair = 0;
         parkourside = turnmillis = 0;
         turnyaw = turnroll = 0;
-        lastparkour = lastjump = lastupwall = lastslide = numparkour = 0;
+        lastparkour = lastjump = lastupwall = lastclimb = lastslide = numparkour = 0;
         eyeheight = maxheight;
         jumping = parkouring = false;
         strafe = move = crouching = 0;

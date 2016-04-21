@@ -482,11 +482,11 @@ namespace game
             else if(d->physstate == PHYS_FALL && d->timeinair >= 50)
             {
                 basetime2 = lastmillis-d->timeinair;
-                bool jump = (d->lastjump && lastmillis-d->lastjump < JUMPDELAY/2), upwall = (d->lastupwall && lastmillis-d->lastupwall < JUMPDELAY);
-                if(jump || upwall)
+                bool jump = (d->lastjump && lastmillis-d->lastjump <= JUMPDELAY/2), upwall = (d->lastupwall && lastmillis-d->lastupwall <= JUMPDELAY), climb = d->lastclimb > 0;
+                if(jump || upwall || climb)
                 {
                     anim |= (ANIM_WALL_JUMP|ANIM_LOOP)<<ANIM_SECONDARY;
-                    basetime2 = jump ? d->lastjump : d->lastupwall;
+                    basetime2 = jump ? d->lastjump : (upwall ? d->lastupwall : d->lastclimb);
                 }
                 if(d->crouching)
                 {
