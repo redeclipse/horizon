@@ -1117,11 +1117,8 @@ int main(int argc, char **argv)
     if(game::savedservers()) execfile(game::savedservers(), false);
 
     identflags |= IDF_PERSIST;
-    // please use autoexec.cfg for now
-    //if(!execfile(game::savedconfig(), false))
-    {
+    if(!execfile(game::savedconfig(), false))
         execfile(game::defaultconfig());
-    }
     execfile(game::autoexec(), false);
 
     identflags &= ~IDF_PERSIST;

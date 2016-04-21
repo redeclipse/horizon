@@ -3083,7 +3083,6 @@ bool validateblock(const char *s)
 #ifndef STANDALONE
 void writecfg(const char *name)
 {
-    return; // please use autoexec.cfg for now
     stream *f = openutf8file(path(name && name[0] ? name : game::savedconfig(), true), "w");
     if(!f) return;
     f->printf("// automatically written by the game\n\n");
