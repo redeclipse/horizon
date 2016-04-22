@@ -45,7 +45,7 @@ static bool loadmapheader(stream *f, const char *ogzname, mapheader &hdr, octahe
 
 bool loadents(const char *fname, vector<entity> &ents, uint *crc)
 {
-    defformatstring(ogzname, "media/maps/%s.ogz", fname);
+    defformatstring(ogzname, "maps/%s.ogz", fname);
     path(ogzname);
     stream *f = opengzfile(ogzname, "rb");
     if(!f) return false;
@@ -120,18 +120,18 @@ VARP(savebak, 0, 2, 2);
 
 void setmapfilenames(const char *fname, const char *cname = NULL)
 {
-    formatstring(ogzname, "media/maps/%s.ogz", fname);
-    if(savebak==1) formatstring(bakname, "media/maps/%s.BAK", fname);
+    formatstring(ogzname, "maps/%s.ogz", fname);
+    if(savebak==1) formatstring(bakname, "maps/%s.BAK", fname);
     else
     {
         string baktime;
         time_t t = time(NULL);
         size_t len = strftime(baktime, sizeof(baktime), "%Y-%m-%d_%H.%M.%S", localtime(&t));
         baktime[min(len, sizeof(baktime)-1)] = '\0';
-        formatstring(bakname, "media/maps/%s_%s.BAK", fname, baktime);
+        formatstring(bakname, "maps/%s_%s.BAK", fname, baktime);
     }
-    formatstring(cfgname, "media/maps/%s.cfg", cname ? cname : fname);
-    formatstring(picname, "media/maps/%s.png", fname);
+    formatstring(cfgname, "maps/%s.cfg", cname ? cname : fname);
+    formatstring(picname, "maps/%s.png", fname);
 
     path(ogzname);
     path(bakname);
@@ -144,7 +144,7 @@ void mapcfgname()
     const char *mname = game::getclientmap();
     if(!*mname) mname = "untitled";
 
-    defformatstring(cfgname, "media/maps/%s.cfg", mname);
+    defformatstring(cfgname, "maps/%s.cfg", mname);
     path(cfgname);
     result(cfgname);
 }

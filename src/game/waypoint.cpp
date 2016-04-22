@@ -679,7 +679,7 @@ namespace ai
         if(!mname || !*mname) mname = getclientmap();
         if(!*mname) return false;
 
-        nformatstring(wptname, MAXSTRLEN, "media/maps/%s.wpt", mname);
+        nformatstring(wptname, MAXSTRLEN, "maps/%s.wpt", mname);
         path(wptname);
         return true;
     }

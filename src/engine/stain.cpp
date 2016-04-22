@@ -695,14 +695,14 @@ struct stainrenderer
             center.mul(scale);
             if(staincenter.reject(vec(e.o).add(center), stainradius + rejectradius*scale)) continue;
 
-            if(m->animated() || (!m->bih && !m->setBIH())) continue; 
+            if(m->animated() || (!m->bih && !m->setBIH())) continue;
 
             int yaw = e.attr2, pitch = e.attr3, roll = e.attr4;
 
             m->bih->genstaintris(this, staincenter, stainradius, e.o, yaw, pitch, roll, scale);
         }
     }
-    
+
     void gentris(cube *c, const ivec &o, int size, int escaped = 0)
     {
         int overlap = octaboxoverlap(o, size, bbmin, bbmax);
@@ -715,7 +715,7 @@ struct stainrenderer
                 if(cu.ext)
                 {
                     if(cu.ext->va && cu.ext->va->matsurfs) findmaterials(cu.ext->va);
-                    if(cu.ext->ents && cu.ext->ents->mapmodels.length()) genmmtris(*cu.ext->ents);            
+                    if(cu.ext->ents && cu.ext->ents->mapmodels.length()) genmmtris(*cu.ext->ents);
                 }
                 if(cu.children) gentris(cu.children, co, size>>1, cu.escaped);
                 else
@@ -744,11 +744,11 @@ struct stainrenderer
 
 stainrenderer stains[] =
 {
-    stainrenderer("<grey>media/particle/blood.png", SF_RND4|SF_ROTATE|SF_INVMOD),
-    stainrenderer("<grey>media/particle/pulse_scorch.png", SF_ROTATE, 500),
-    stainrenderer("<grey>media/particle/rail_hole.png", SF_ROTATE|SF_OVERBRIGHT),
-    stainrenderer("<grey>media/particle/pulse_glow.png", SF_ROTATE|SF_GLOW|SF_SATURATE, 250, 1500, 250),
-    stainrenderer("<grey>media/particle/rail_glow.png",  SF_ROTATE|SF_GLOW|SF_SATURATE, 100, 1100, 100)
+    stainrenderer("<grey>particle/blood.png", SF_RND4|SF_ROTATE|SF_INVMOD),
+    stainrenderer("<grey>particle/pulse_scorch.png", SF_ROTATE, 500),
+    stainrenderer("<grey>particle/rail_hole.png", SF_ROTATE|SF_OVERBRIGHT),
+    stainrenderer("<grey>particle/pulse_glow.png", SF_ROTATE|SF_GLOW|SF_SATURATE, 250, 1500, 250),
+    stainrenderer("<grey>particle/rail_glow.png",  SF_ROTATE|SF_GLOW|SF_SATURATE, 100, 1100, 100)
 };
 
 void initstains()

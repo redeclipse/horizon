@@ -162,7 +162,7 @@ void renderbackgroundview(int w, int h, const char *caption, Texture *mapshot, c
     gle::defvertex(2);
     gle::deftexcoord0();
 
-    settexture("media/interface/background.png", 0);
+    settexture("interface/background.png", 0);
     float offsetx = 0, offsety = 0;
     if(w > h) offsety = ((w-h)/float(w))*0.5f;
     else if(h > w) offsetx = ((h-w)/float(h))*0.5f;
@@ -171,14 +171,14 @@ void renderbackgroundview(int w, int h, const char *caption, Texture *mapshot, c
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    settexture("media/interface/shadow.png", 3);
+    settexture("interface/shadow.png", 3);
     bgquad(0, 0, w, h);
 
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     float lh = 0.5f*min(w, h), lw = lh*2,
           lx = 0.5f*(w - lw), ly = 0.5f*(h*0.5f - lh);
-    settexture((maxtexsize ? min(maxtexsize, hwtexsize) : hwtexsize) >= 1024 && (hudw > 1280 || hudh > 800) ? "<premul>media/interface/logo_1024.png" : "<premul>media/interface/logo.png", 3);
+    settexture((maxtexsize ? min(maxtexsize, hwtexsize) : hwtexsize) >= 1024 && (hudw > 1280 || hudh > 800) ? "<premul>interface/logo_1024.png" : "<premul>interface/logo.png", 3);
     bgquad(lx, ly, lw, lh/2);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -296,7 +296,7 @@ void renderprogressview(int w, int h, float bar, const char *text)   // also use
     float fh = 0.060f*min(w, h), fw = fh*15,
           fx = renderedframe ? w - fw - fh/4 : 0.5f*(w - fw),
           fy = renderedframe ? fh/4 : h - fh*1.5f;
-    settexture("media/interface/loading_frame.png", 3);
+    settexture("interface/loading_frame.png", 3);
     bgquad(fx, fy, fw, fh);
 
     glEnable(GL_BLEND);
@@ -310,7 +310,7 @@ void renderprogressview(int w, int h, float bar, const char *text)   // also use
           ex = bx+sw + max(mw*bar, fw*8/512.0f);
     if(bar > 0)
     {
-        settexture("media/interface/loading_bar.png", 3);
+        settexture("interface/loading_bar.png", 3);
         bgquad(bx, by, sw, bh, su1, 0, su2-su1, 1);
         bgquad(bx+sw, by, ex-(bx+sw), bh, su2, 0, eu1-su2, 1);
         bgquad(ex, by, ew, bh, eu1, 0, eu2-eu1, 1);
@@ -594,13 +594,13 @@ void resetgl()
 
     inbetweenframes = false;
     if(!reloadtexture(*notexture) ||
-       !reloadtexture("<premul>media/interface/logo.png") ||
-       !reloadtexture("<premul>media/interface/logo_1024.png") ||
-       !reloadtexture("media/interface/background.png") ||
-       !reloadtexture("media/interface/shadow.png") ||
-       !reloadtexture("media/interface/mapshot_frame.png") ||
-       !reloadtexture("media/interface/loading_frame.png") ||
-       !reloadtexture("media/interface/loading_bar.png"))
+       !reloadtexture("<premul>interface/logo.png") ||
+       !reloadtexture("<premul>interface/logo_1024.png") ||
+       !reloadtexture("interface/background.png") ||
+       !reloadtexture("interface/shadow.png") ||
+       !reloadtexture("interface/mapshot_frame.png") ||
+       !reloadtexture("interface/loading_frame.png") ||
+       !reloadtexture("interface/loading_bar.png"))
         fatal("failed to reload core texture");
     reloadfonts();
     inbetweenframes = true;
@@ -1009,6 +1009,8 @@ int main(int argc, char **argv)
     int dedicated = 0;
     char *load = NULL, *initscript = NULL;
 
+    addpackagedir("data");
+
     initing = INIT_RESET;
     for(int i = 1; i<argc; i++)
     {
@@ -1041,7 +1043,7 @@ int main(int argc, char **argv)
             case 'f': fullscreen = atoi(&argv[i][2]); break;
             case 'l':
             {
-                char pkgdir[] = "media/";
+                char pkgdir[] = "";
                 load = strstr(path(&argv[i][2]), path(pkgdir));
                 if(load) load += sizeof(pkgdir)-1;
                 else load = &argv[i][2];
@@ -1085,7 +1087,7 @@ int main(int argc, char **argv)
     logoutf("init: gl");
     gl_checkextensions();
     gl_init();
-    notexture = textureload("media/texture/game/notexture.png");
+    notexture = textureload("texture/game/notexture.png");
     if(!notexture) fatal("could not find core textures");
 
     logoutf("init: console");
