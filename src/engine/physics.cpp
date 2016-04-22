@@ -19,7 +19,7 @@ float KICKVEL = 50;
 float CLIMBVEL = 25;
 float CLIMBUPVEL = 5;
 float CLIMBSCALE = 0.25f;
-float UPWALLVEL = 4;
+float UPWALLVEL = 5;
 float SLIDEVEL = 20;
 
 float CLIMBMIN = 0.25f;
@@ -42,23 +42,23 @@ float UPWALLANGLE = 89;
 
 float LONGJUMPMIN = 20;
 float LONGJUMPMAX = 45;
-int SLIDEDELAY = 2000;
+int SLIDEDELAY = 1000;
 int SLIDETIME = 600;
 
 float LIQUIDSPEED = 0.85f;
 float STRAFESCALE = 0.8f;
 float BACKPEDALSCALE = 0.75f;
 float RUNSPEED = 99;
-float SLIDESPEED = 75;
-float RUNSCALE = 1.3f;
-float PARKOURSCALE = 1.2f;
+float SLIDESPEED = 65;
+float RUNSCALE = 1.2f;
+float PARKOURSCALE = 1.1f;
 
-float WATERCOAST = 18;
-float FLOORCOAST = 10;
-float RUNNINGCOAST = 12;
-float AIRCOAST = 22;
+float WATERCOAST = 10;
+float FLOORCOAST = 5;
+float RUNNINGCOAST = 10;
+float AIRCOAST = 25;
 float PARKOURCOAST = 12;
-float SLIDECOAST = 16;
+float SLIDECOAST = 15;
 
 int CROUCHTIME = 100;
 float CROUCHHEIGHT = 0.65f;
@@ -1766,7 +1766,7 @@ void vectoyawpitch(const vec &v, float &yaw, float &pitch)
 #define PHYSFRAMETIME 8
 
 VAR(floatspeed, 1, 200, 10000);
-FVAR(floatcoast, 1, 10, 10000);
+FVAR(floatcoast, 1, 3, 10000);
 
 void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curtime)
 {
