@@ -400,7 +400,7 @@ static void linkglslprogram(Shader &s, bool msg = true)
 
 static void findfragdatalocs(Shader &s, char *ps, const char *macroname, int index)
 {
-    int macrolen = strlen(macroname); 
+    int macrolen = strlen(macroname);
     bool clear = glslversion < 130 && !hasEGPU4;
     while((ps = strstr(ps, macroname)))
     {
@@ -1021,26 +1021,27 @@ void setupshaders()
         "    fragcolor = colorscale * color;\n"
         "}\n");
     hudtextshader = newshader(0, "<init>hudtext",
+
         "attribute vec4 vvertex, vcolor;\n"
         "attribute vec2 vtexcoord0;\n"
         "uniform mat4 hudmatrix;\n"
         "varying vec2 texcoord0;\n"
         "varying vec4 colorscale;\n"
-        "void main(void) {\n"
+        "void main(void)\n"
+        "{\n"
         "    gl_Position = hudmatrix * vvertex;\n"
         "    texcoord0 = vtexcoord0;\n"
         "    colorscale = vcolor;\n"
         "}\n",
         "uniform sampler2D tex0;\n"
-        "uniform vec4 textparams;\n"
         "varying vec2 texcoord0;\n"
         "varying vec4 colorscale;\n"
         "fragdata(0) vec4 fragcolor;\n"
-        "void main(void) {\n"
-        "    float dist = texture2D(tex0, texcoord0).r;\n"
-        "    float border = smoothstep(textparams.x, textparams.y, dist);\n"
-        "    float outline = smoothstep(textparams.z, textparams.w, dist);\n"
-        "    fragcolor = vec4(colorscale.rgb * outline, colorscale.a * border);\n"
+        "void main(void)\n"
+        "{\n"
+        "    vec4 color = texture2D(tex0, texcoord0);\n"
+        "    fragcolor.rgb = colorscale.rgb * color.rgb;\n"
+        "    fragcolor.a   = colorscale.a * color.a;\n"
         "}\n");
     hudnotextureshader = newshader(0, "<init>hudnotexture",
         "attribute vec4 vvertex, vcolor;\n"
@@ -1256,7 +1257,7 @@ void linkvslotshader(VSlot &s, bool load)
 bool shouldreuseparams(Slot &s, VSlot &p)
 {
     if(!s.shader) return false;
-    
+
     Shader &sh = *s.shader;
     loopv(sh.defaultparams)
     {
@@ -1266,7 +1267,7 @@ bool shouldreuseparams(Slot &s, VSlot &p)
             const float *val = findslotparam(p, param.name);
             if(val && memcmp(param.val, val, sizeof(param.val)))
             {
-                loopvj(s.params) if(s.params[j].name == param.name) goto notreused; 
+                loopvj(s.params) if(s.params[j].name == param.name) goto notreused;
                 return true;
             notreused:;
             }

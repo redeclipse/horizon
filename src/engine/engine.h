@@ -45,7 +45,6 @@ struct font
     vector<Texture *> texs;
     vector<charinfo> chars;
     int charoffset, defaultw, defaulth, scale;
-    float bordermin, bordermax, outlinemin, outlinemax;
 
     font() : name(NULL) {}
     ~font() { DELETEA(name); }

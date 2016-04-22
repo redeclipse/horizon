@@ -1093,7 +1093,7 @@ int main(int argc, char **argv)
     logoutf("init: console");
     if(!execfile("config/stdlib.cfg", false)) fatal("cannot find data files (you are running from the wrong folder, try .bat file in the main folder)");   // this is the first file we load.
     if(!execfile("config/font.cfg", false)) fatal("cannot find font definitions");
-    if(!setfont("default")) fatal("no default font specified");
+    if(!setfont("play") && !setfont("default")) fatal("no default font specified");
 
     UI::setup();
 

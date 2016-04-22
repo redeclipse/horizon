@@ -18,29 +18,9 @@ void newfont(char *name, char *tex, int *defaultw, int *defaulth, int *scale)
     f->defaultw = *defaultw;
     f->defaulth = *defaulth;
     f->scale = *scale > 0 ? *scale : f->defaulth;
-    f->bordermin = 0.49f;
-    f->bordermax = 0.5f;
-    f->outlinemin = -1;
-    f->outlinemax = 0;
 
     fontdef = f;
     fontdeftex = 0;
-}
-
-void fontborder(float *bordermin, float *bordermax)
-{
-    if(!fontdef) return;
-
-    fontdef->bordermin = *bordermin;
-    fontdef->bordermax = max(*bordermax, *bordermin+0.01f);
-}
-
-void fontoutline(float *outlinemin, float *outlinemax)
-{
-    if(!fontdef) return;
-
-    fontdef->outlinemin = min(*outlinemin, *outlinemax-0.01f);
-    fontdef->outlinemax = *outlinemax;
 }
 
 void fontoffset(char *c)
@@ -94,8 +74,6 @@ void fontskip(int *n)
 }
 
 COMMANDN(font, newfont, "ssiii");
-COMMAND(fontborder, "ff");
-COMMAND(fontoutline, "ff");
 COMMAND(fontoffset, "s");
 COMMAND(fontscale, "i");
 COMMAND(fonttex, "s");
@@ -114,10 +92,6 @@ void fontalias(const char *dst, const char *src)
     d->defaultw = s->defaultw;
     d->defaulth = s->defaulth;
     d->scale = s->scale;
-    d->bordermin = s->bordermin;
-    d->bordermax = s->bordermax;
-    d->outlinemin = s->outlinemin;
-    d->outlinemax = s->outlinemax;
 
     fontdef = d;
     fontdeftex = d->texs.length()-1;
@@ -402,7 +376,6 @@ void draw_text(const char *str, float left, float top, int r, int g, int b, int 
     if(a < 0) { usecolor = false; a = -a; }
     Texture *tex = curfont->texs[0];
     (textshader ? textshader : hudtextshader)->set();
-    LOCALPARAMF(textparams, curfont->bordermin, curfont->bordermax, curfont->outlinemin, curfont->outlinemax);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBindTexture(GL_TEXTURE_2D, tex->id);
     gle::color(color, a);
