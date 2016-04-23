@@ -1040,8 +1040,7 @@ void setupshaders()
         "void main(void)\n"
         "{\n"
         "    vec4 color = texture2D(tex0, texcoord0);\n"
-        "    fragcolor.rgb = colorscale.rgb * color.rgb;\n"
-        "    fragcolor.a   = colorscale.a * color.a;\n"
+        "    fragcolor = colorscale * color;\n"
         "}\n");
     hudnotextureshader = newshader(0, "<init>hudnotexture",
         "attribute vec4 vvertex, vcolor;\n"
