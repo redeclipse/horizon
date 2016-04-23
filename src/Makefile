@@ -498,7 +498,7 @@ game/entities-standalone.o: shared/iengine.h shared/igame.h game/ai.h
 game/server-standalone.o: game/game.h shared/cube.h shared/tools.h
 game/server-standalone.o: shared/geom.h shared/ents.h shared/command.h
 game/server-standalone.o: shared/iengine.h shared/igame.h game/ai.h
-game/server-standalone.o: game/ctf.h game/extinfo.h game/aiman.h
+game/server-standalone.o: game/aiman.h
 
 shared/cube-standalone.h.gch: shared/tools.h shared/geom.h shared/ents.h
 shared/cube-standalone.h.gch: shared/command.h shared/iengine.h
