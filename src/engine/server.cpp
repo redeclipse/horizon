@@ -3,6 +3,82 @@
 
 #include "engine.h"
 
+const char *platnames[MAX_PLATFORMS] = {
+    "win", "osx", "nix"
+}, *platlongnames[MAX_PLATFORMS] = {
+    "windows", "macosx", "linux/bsd"
+};
+
+VAR(version, 1, CUR_VERSION, -1);
+VAR(versionmajor, 1, VERSION_MAJOR, -1);
+VAR(versionminor, 1, VERSION_MINOR, -1);
+VAR(versionpatch, 1, VERSION_PATCH, -1);
+SVAR(versionstring, VERSION_STRING);
+SVAR(versionname, VERSION_NAME);
+SVAR(versionuname, VERSION_UNAME);
+SVAR(versionvname, VERSION_VNAME);
+SVAR(versionrelease, VERSION_RELEASE);
+SVAR(versionurl, VERSION_URL);
+SVAR(versioncopy, VERSION_COPY);
+SVAR(versiondesc, VERSION_DESC);
+SVAR(versionplatname, plat_name(CUR_PLATFORM));
+SVAR(versionplatlongname, plat_longname(CUR_PLATFORM));
+VAR(versionplatform, 0, CUR_PLATFORM, VAR_MAX);
+VAR(versionarch, 0, CUR_ARCH, VAR_MAX);
+VAR(versioncrc, 0, 0, VAR_MAX);
+SVAR(versionbranch, "undef");
+#ifdef STANDALONE
+VAR(versionisserver, 0, 1, 1);
+#else
+VAR(versionisserver, 0, 0, 1);
+#endif
+ICOMMAND(platname, "ii", (int *p, int *g), result(*p >= 0 && *p < MAX_PLATFORMS ? (*g!=0 ? plat_longname(*p) : plat_name(*p)) : ""));
+
+SVAR(systemuser, "none");
+SVAR(systemhost, "unknown");
+
+SVAR(logtimeformat, "%Y-%m-%d %H:%M.%S");
+VAR(logtimelocal, 0, 1, 1); // use clockoffset to localise
+SVAR(filetimeformat, "%Y%m%d%H%M%S");
+VAR(filetimelocal, 0, 1, 1); // use clockoffset to localise
+
+const char *timestr(int dur, int style)
+{
+    static string buf; buf[0] = '\0';
+    int tm = dur, ms = 0, ss = 0, mn = 0;
+    if(tm > 0)
+    {
+        ms = tm%1000;
+        tm = (tm-ms)/1000;
+    }
+    if(style > 0 && tm > 0)
+    {
+        ss = tm%60;
+        tm = (tm-ss)/60;
+        if(tm > 0) mn = tm;
+    }
+    switch(style)
+    {
+        case 0: formatstring(buf, "%d.%d", tm, ms/100); break;
+        case 1: formatstring(buf, "%d:%02d.%03d", mn, ss, ms); break;
+        case 2: formatstring(buf, "%d:%02d.%d", mn, ss, ms/100); break;
+        case 3: formatstring(buf, "%d:%02d", mn, ss); break;
+        case 4:
+        {
+            if(mn > 0)
+            {
+                if(ss > 0) formatstring(buf, "%dm%ds", mn, ss);
+                else formatstring(buf, "%dm", mn);
+                break;
+            }
+            formatstring(buf, "%ds", ss);
+            break;
+        }
+    }
+    return buf;
+}
+ICOMMAND(timestr, "ii", (int *d, int *s), result(timestr(*d, *s)));
+
 #define LOGSTRLEN 512
 
 static FILE *logfile = NULL;

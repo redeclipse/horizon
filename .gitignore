@@ -1,10 +1,13 @@
 *.dbg
 *.bin
 *.exe
-bin_unix/*
-src/vcpp/.objs/
-src/vcpp/horizon.layout
-src/vcpp/horizon.depend
+bin/x86/horizon_*
+bin/amd64/horizon_*
+bin/horizon_*
+bin/horizon.app/Contents/MacOS/horizon_universal
+src/.objs/
+src/horizon.layout
+src/horizon.depend
 src/vcpp/horizon.res
 *.o
 *.so

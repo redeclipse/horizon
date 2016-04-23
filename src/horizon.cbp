@@ -1,0 +1,1119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="horizon" />
+		<Option platforms="Windows;" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="horizon-x86">
+				<Option output="../bin/x86/horizon.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/horizon-x86" />
+				<Option deps_output=".deps/horizon-x86" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option parameters="-glog.txt" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-O3" />
+					<Add option="-Wall" />
+					<Add option="-ffast-math" />
+					<Add option="-m32" />
+					<Add option="-mwindows" />
+					<Add option="-fsigned-char" />
+					<Add option="-fno-exceptions" />
+					<Add option="-fno-rtti" />
+					<Add directory="support" />
+					<Add directory="shared" />
+					<Add directory="engine" />
+					<Add directory="game" />
+					<Add directory="enet/include" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-m32" />
+					<Add option="-mwindows" />
+					<Add library="SDL2" />
+					<Add library="SDL2_image" />
+					<Add library="SDL2_mixer" />
+					<Add library="zlib1" />
+					<Add library="opengl32" />
+					<Add library="enet" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add directory="../bin/x86" />
+					<Add directory="lib/x86" />
+				</Linker>
+				<Environment>
+					<Variable name="WINDRES_TARGET" value="pe-i386" />
+				</Environment>
+			</Target>
+			<Target title="horizon-x86-dbg">
+				<Option output="../bin/x86/horizon-dbg.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/horizon-x86-dbg" />
+				<Option deps_output=".deps/horizon-x86-dbg" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option parameters="-glog.txt" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-m32" />
+					<Add option="-mwindows" />
+					<Add option="-fsigned-char" />
+					<Add directory="support" />
+					<Add directory="shared" />
+					<Add directory="engine" />
+					<Add directory="game" />
+					<Add directory="enet/include" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-m32" />
+					<Add option="-mwindows" />
+					<Add library="SDL2" />
+					<Add library="SDL2_image" />
+					<Add library="SDL2_mixer" />
+					<Add library="zlib1" />
+					<Add library="opengl32" />
+					<Add library="enet" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add directory="../bin/x86" />
+					<Add directory="lib/x86" />
+				</Linker>
+				<Environment>
+					<Variable name="WINDRES_TARGET" value="pe-i386" />
+				</Environment>
+			</Target>
+			<Target title="horizon-x86-prof">
+				<Option output="../bin/x86/horizon.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/horizon-x86-prof" />
+				<Option deps_output=".deps/horizon-x86-prof" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option parameters="-glog.txt" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-pg" />
+					<Add option="-m32" />
+					<Add option="-mwindows" />
+					<Add option="-fsigned-char" />
+					<Add option="-finline-functions" />
+					<Add directory="support" />
+					<Add directory="shared" />
+					<Add directory="engine" />
+					<Add directory="game" />
+					<Add directory="enet/include" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+					<Add option="-m32" />
+					<Add option="-mwindows" />
+					<Add library="SDL2" />
+					<Add library="SDL2_image" />
+					<Add library="SDL2_mixer" />
+					<Add library="zlib1" />
+					<Add library="opengl32" />
+					<Add library="enet" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add directory="../bin/x86" />
+					<Add directory="lib/x86" />
+				</Linker>
+				<Environment>
+					<Variable name="WINDRES_TARGET" value="pe-i386" />
+				</Environment>
+			</Target>
+			<Target title="horizon_server-x86">
+				<Option output="../bin/x86/horizon_server.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/horizon_server-x86" />
+				<Option deps_output=".deps/horizon_server-x86" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-ffast-math" />
+					<Add option="-O3" />
+					<Add option="-Wall" />
+					<Add option="-m32" />
+					<Add option="-mwindows" />
+					<Add option="-fsigned-char" />
+					<Add option="-fno-exceptions" />
+					<Add option="-fno-rtti" />
+					<Add option="-DSTANDALONE" />
+					<Add directory="support" />
+					<Add directory="shared" />
+					<Add directory="engine" />
+					<Add directory="game" />
+					<Add directory="enet/include" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-m32" />
+					<Add option="-mwindows" />
+					<Add library="zlib1" />
+					<Add library="enet" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add directory="../bin/x86" />
+					<Add directory="lib/x86" />
+				</Linker>
+				<Environment>
+					<Variable name="WINDRES_TARGET" value="pe-i386" />
+				</Environment>
+			</Target>
+			<Target title="horizon_server-x86-dbg">
+				<Option output="../bin/x86/horizon_server-dbg.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/horizon_server-x86-dbg" />
+				<Option deps_output=".deps/horizon_server-x86-dbg" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-m32" />
+					<Add option="-mwindows" />
+					<Add option="-fsigned-char" />
+					<Add option="-DSTANDALONE" />
+					<Add directory="support" />
+					<Add directory="shared" />
+					<Add directory="engine" />
+					<Add directory="game" />
+					<Add directory="enet/include" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-m32" />
+					<Add option="-mwindows" />
+					<Add library="zlib1" />
+					<Add library="enet" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add directory="../bin/x86" />
+					<Add directory="lib/x86" />
+				</Linker>
+				<Environment>
+					<Variable name="WINDRES_TARGET" value="pe-i386" />
+				</Environment>
+			</Target>
+			<Target title="horizon-amd64">
+				<Option output="../bin/amd64/horizon.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/horizon-amd64" />
+				<Option deps_output=".deps/horizon-amd64" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option parameters="-glog.txt" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-ffast-math" />
+					<Add option="-O3" />
+					<Add option="-Wall" />
+					<Add option="-m64" />
+					<Add option="-mwindows" />
+					<Add option="-fsigned-char" />
+					<Add option="-fno-exceptions" />
+					<Add option="-fno-rtti" />
+					<Add directory="support" />
+					<Add directory="shared" />
+					<Add directory="engine" />
+					<Add directory="game" />
+					<Add directory="enet/include" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-m64" />
+					<Add option="-mwindows" />
+					<Add library="SDL2" />
+					<Add library="SDL2_image" />
+					<Add library="SDL2_mixer" />
+					<Add library="zlib1" />
+					<Add library="opengl32" />
+					<Add library="enet" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add directory="../bin/amd64" />
+					<Add directory="lib/amd64" />
+				</Linker>
+				<Environment>
+					<Variable name="WINDRES_TARGET" value="pe-x86-64" />
+				</Environment>
+			</Target>
+			<Target title="horizon-amd64-dbg">
+				<Option output="../bin/amd64/horizon-dbg.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/horizon-amd64-dbg" />
+				<Option deps_output=".deps/horizon-amd64-dbg" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option parameters="-glog.txt" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-m64" />
+					<Add option="-mwindows" />
+					<Add option="-fsigned-char" />
+					<Add directory="support" />
+					<Add directory="shared" />
+					<Add directory="engine" />
+					<Add directory="game" />
+					<Add directory="enet/include" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-m64" />
+					<Add option="-mwindows" />
+					<Add library="SDL2" />
+					<Add library="SDL2_image" />
+					<Add library="SDL2_mixer" />
+					<Add library="zlib1" />
+					<Add library="opengl32" />
+					<Add library="enet" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add directory="../bin/amd64" />
+					<Add directory="lib/amd64" />
+				</Linker>
+				<Environment>
+					<Variable name="WINDRES_TARGET" value="pe-x86-64" />
+				</Environment>
+			</Target>
+			<Target title="horizon-amd64-prof">
+				<Option output="../bin/amd64/horizon.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/horizon-amd64-prof" />
+				<Option deps_output=".deps/horizon-amd64-prof" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option parameters="-glog.txt" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-pg" />
+					<Add option="-m64" />
+					<Add option="-mwindows" />
+					<Add option="-fsigned-char" />
+					<Add option="-finline-functions" />
+					<Add directory="support" />
+					<Add directory="shared" />
+					<Add directory="engine" />
+					<Add directory="game" />
+					<Add directory="enet/include" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+					<Add option="-m64" />
+					<Add option="-mwindows" />
+					<Add library="SDL2" />
+					<Add library="SDL2_image" />
+					<Add library="SDL2_mixer" />
+					<Add library="zlib1" />
+					<Add library="opengl32" />
+					<Add library="enet" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add directory="../bin/amd64" />
+					<Add directory="lib/amd64" />
+				</Linker>
+				<Environment>
+					<Variable name="WINDRES_TARGET" value="pe-x86-64" />
+				</Environment>
+			</Target>
+			<Target title="horizon_server-amd64">
+				<Option output="../bin/amd64/horizon_server.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/horizon_server-amd64" />
+				<Option deps_output=".deps/horizon_server-amd64" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-ffast-math" />
+					<Add option="-O3" />
+					<Add option="-Wall" />
+					<Add option="-m64" />
+					<Add option="-mwindows" />
+					<Add option="-fsigned-char" />
+					<Add option="-fno-exceptions" />
+					<Add option="-fno-rtti" />
+					<Add option="-DSTANDALONE" />
+					<Add directory="support" />
+					<Add directory="shared" />
+					<Add directory="engine" />
+					<Add directory="game" />
+					<Add directory="enet/include" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-m64" />
+					<Add option="-mwindows" />
+					<Add library="zlib1" />
+					<Add library="enet" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add directory="../bin/amd64" />
+					<Add directory="lib/amd64" />
+				</Linker>
+				<Environment>
+					<Variable name="WINDRES_TARGET" value="pe-x86-64" />
+				</Environment>
+			</Target>
+			<Target title="horizon_server-amd64-dbg">
+				<Option output="../bin/amd64/horizon_server-dbg.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/horizon_server-amd64-dbg" />
+				<Option deps_output=".deps/horizon_server-amd64-dbg" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-m64" />
+					<Add option="-mwindows" />
+					<Add option="-fsigned-char" />
+					<Add option="-DSTANDALONE" />
+					<Add directory="support" />
+					<Add directory="shared" />
+					<Add directory="engine" />
+					<Add directory="game" />
+					<Add directory="enet/include" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-m64" />
+					<Add option="-mwindows" />
+					<Add library="zlib1" />
+					<Add library="enet" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add directory="../bin/amd64" />
+					<Add directory="lib/amd64" />
+				</Linker>
+				<Environment>
+					<Variable name="WINDRES_TARGET" value="pe-x86-64" />
+				</Environment>
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="ALL" targets="horizon-x86;horizon_server-x86;horizon-amd64;horizon_server-amd64;" />
+			<Add alias="ALL-amd64" targets="horizon-amd64;horizon_server-amd64;" />
+			<Add alias="ALL-x86" targets="horizon-x86;horizon_server-x86;" />
+		</VirtualTargets>
+		<Unit filename="engine/aa.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/animmodel.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/bih.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/bih.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/blend.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/client.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/command.cpp" />
+		<Unit filename="engine/console.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/dynlight.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/engine.h">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/explosion.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/grass.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/hitzone.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/iqm.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/lensflare.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/light.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/light.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/lightning.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/main.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/material.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/md2.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/md3.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/md5.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/menus.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/model.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/movie.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/mpr.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/normal.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/obj.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/octa.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/octa.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/octaedit.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/octarender.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/physics.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/pvs.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/ragdoll.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/rendergl.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/renderlights.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/rendermodel.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/renderparticles.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/rendersky.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/rendertext.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/renderva.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/scale.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/server.cpp" />
+		<Unit filename="engine/serverbrowser.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/shader.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/skelmodel.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/smd.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/sound.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/stain.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/textedit.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/texture.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/texture.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/ui.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/vertmodel.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/water.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/world.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/world.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="engine/worldio.cpp" />
+		<Unit filename="game/ai.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="game/ai.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="game/aiman.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="game/client.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="game/entities.cpp" />
+		<Unit filename="game/game.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="game/game.h">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="game/render.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="game/server.cpp" />
+		<Unit filename="game/waypoint.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="game/weapon.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="mingw.rc">
+			<Option compilerVar="WINDRES" />
+			<Option compiler="gcc" use="1" buildCommand="$rescomp -F $WINDRES_TARGET -i $file -J rc -o $resource_output -O coff $res_includes" />
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/command.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/crypto.cpp" />
+		<Unit filename="shared/cube.h">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/ents.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/geom.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/geom.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/glemu.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/glemu.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/glexts.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/iengine.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/igame.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/stream.cpp" />
+		<Unit filename="shared/tools.cpp" />
+		<Unit filename="shared/tools.h">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Unit filename="shared/zip.cpp">
+			<Option target="horizon-x86" />
+			<Option target="horizon-x86-dbg" />
+			<Option target="horizon-x86-prof" />
+			<Option target="horizon-amd64" />
+			<Option target="horizon-amd64-dbg" />
+			<Option target="horizon-amd64-prof" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<editor_config active="1" use_tabs="0" tab_indents="1" tab_width="4" indent="4" eol_mode="0" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

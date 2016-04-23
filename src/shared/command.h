@@ -47,6 +47,12 @@ enum { ID_VAR, ID_FVAR, ID_SVAR, ID_COMMAND, ID_ALIAS, ID_LOCAL, ID_DO, ID_DOARG
 
 enum { IDF_PERSIST = 1<<0, IDF_OVERRIDE = 1<<1, IDF_HEX = 1<<2, IDF_READONLY = 1<<3, IDF_OVERRIDDEN = 1<<4, IDF_UNKNOWN = 1<<5, IDF_ARG = 1<<6 };
 
+#define VAR_MIN INT_MIN+1
+#define VAR_MAX INT_MAX-1
+#define FVAR_MIN -1e6f
+#define FVAR_MAX 1e6f
+#define FVAR_NONZERO 1e-6f
+
 struct ident;
 
 struct identval

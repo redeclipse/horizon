@@ -1,8 +1,39 @@
 #ifndef __ENGINE_H__
 #define __ENGINE_H__
 
+#include "version.h"
+
 #include "cube.h"
 #include "world.h"
+
+extern int version, versionmajor, versionminor, versionpatch, versionplatform, versionarch, versionisserver, versioncrc;
+extern char *versionstring, *versionname, *versionuname, *versionvname, *versionrelease, *versionurl, *versionmaster, *versionplatname, *versionplatlongname, *versionbranch;
+extern char *systemuser, *systemhost;
+#define CUR_VER_MAKE(a,b,c) (((a)<<16) | ((b)<<8) | (c))
+#define CUR_VER CUR_VER_MAKE(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH)
+#define CUR_VERSION (VERSION_MAJOR*100)+(VERSION_MINOR*10)+VERSION_PATCH
+
+#ifdef WIN32
+#define CUR_PLATFORM 0
+#define CUR_PLATID
+#elif defined(__APPLE__)
+#define CUR_PLATFORM 1
+#else
+#define CUR_PLATFORM 2
+#endif
+#define CUR_ARCH (int(8*sizeof(void *)))
+
+#define MAX_PLATFORMS 3
+
+#define sup_platform(a) (a >= 0 && a < MAX_PLATFORMS)
+#define sup_arch(a) (a == 32 || a == 64)
+#define sup_var(a) VERSION_VNAME"_"a
+
+extern const char *platnames[MAX_PLATFORMS], *platlongnames[MAX_PLATFORMS];
+#define plat_name(a) (sup_platform(a) ? platnames[a] : "unk")
+#define plat_longname(a) (sup_platform(a) ? platlongnames[a] : "unknown")
+
+extern const char *timestr(int dur, int style = 0);
 
 #ifndef STANDALONE
 

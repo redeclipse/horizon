@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleName</key>
+	<string>Red Eclipse Horizon</string>
+	<key>CFBundleDisplayName</key>
+	<string>Red Eclipse Horizon</string>
+	<key>CFBundleIdentifier</key>
+	<string>net.redeclipse.horizon.game</string>
+	<key>CFBundleExecutable</key>
+	<string>horizon</string>
+	<key>CFBundleIconFile</key>
+	<string>horizon</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>0.0.1</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.0.1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.5.0</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>(C) 2010 Quinton Reeves, Lee Salzman, under the ZLIB License</string>
+</dict>
+</plist>

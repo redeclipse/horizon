@@ -1,0 +1,18 @@
+#!/bin/sh
+SDL_SINGLEDISPLAY=1
+SDL_ENABLEAPPEVENTS=1
+HORIZON_ORIGPW=`pwd`
+HORIZON_APPDIR=$(dirname "$0")
+cd "${HORIZON_APPDIR}"
+if [ -e "../Resources/readme.txt" ]; then
+    cd "../Resources"
+    HORIZON_RESDIR=`pwd`
+    osascript -e "tell application \"Terminal\" to do script \"cd \\\"${HORIZON_RESDIR}\\\"; ./HORIZON.sh $@; exit\""
+elif [ -e "../../../../readme.txt" ]; then
+    cd "../../../.."
+    HORIZON_RESDIR=`pwd`
+    osascript -e "tell application \"Terminal\" to do script \"cd \\\"${HORIZON_RESDIR}\\\"; ./HORIZON.sh $@; exit\""
+elif [ -e "HORIZON_universal" ]; then
+    osascript -e "tell application \"Terminal\" to do script \"./HORIZON_universal $@; exit\""
+fi
+cd "${HORIZON_ORIGPW}"

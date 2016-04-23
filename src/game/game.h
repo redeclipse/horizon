@@ -1,7 +1,7 @@
 #ifndef __GAME_H__
 #define __GAME_H__
 
-#include "cube.h"
+#include "engine.h"
 
 // animations
 
@@ -189,9 +189,6 @@ static const int msgsizes[] =               // size inclusive message token, 0 f
     -1
 };
 
-#define HORIZON_SERVER_PORT 42000
-#define HORIZON_LANINFO_PORT 41998
-#define HORIZON_MASTER_PORT 41999
 #define PROTOCOL_VERSION 2              // bump when protocol changes
 #define DEMO_VERSION 1                  // bump when demo format changes
 #define DEMO_MAGIC "HORIZON_DEMO\0\0"

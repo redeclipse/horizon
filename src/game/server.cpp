@@ -3221,10 +3221,10 @@ namespace server
         }
     }
 
-    int laninfoport() { return HORIZON_LANINFO_PORT; }
-    int serverport() { return HORIZON_SERVER_PORT; }
+    int laninfoport() { return LAN_PORT; }
+    int serverport() { return SERVER_PORT; }
     const char *defaultmaster() { return "play.redeclipse.net"; }
-    int masterport() { return HORIZON_MASTER_PORT; }
+    int masterport() { return MASTER_PORT; }
     int numchannels() { return 3; }
 
     void serverinforeply(ucharbuf &req, ucharbuf &p)
