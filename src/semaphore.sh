@@ -51,7 +51,7 @@ semabuild_build() {
 
 semabuild_integrate() {
     for i in ${SEMABUILD_ALLMODS}; do
-        if [ "${i}" = "base" ]; then
+        if [ "${i}" = "horizon" ]; then
             SEMABUILD_MODDIR="${SEMABUILD_PWD}"
         else
             SEMABUILD_MODDIR="${SEMABUILD_PWD}/data/${i}"
@@ -68,7 +68,7 @@ semabuild_integrate() {
             echo "module ${i} updated, syncing.."
             echo "${SEMABUILD_HASH}" > "${SEMABUILD_DIR}/${i}.txt"
             SEMABUILD_DEPLOY="true"
-            if [ "${i}" = "base" ]; then
+            if [ "${i}" = "horizon" ]; then
                 echo "module ${i} checking for source modifications.."
                 SEMABUILD_BINS=`curl --fail --silent "${SEMABUILD_SOURCE}/${BRANCH_NAME}/bins.txt"` || return 1
                 SEMABUILD_CHANGES=`git diff --name-only HEAD ${SEMABUILD_BINS} -- src | egrep '\.h$|\.c$|\.cpp$|Makefile$'`
