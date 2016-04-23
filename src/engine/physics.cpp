@@ -49,7 +49,8 @@ float LIQUIDSPEED = 0.85f;
 float STRAFESCALE = 0.8f;
 float BACKPEDALSCALE = 0.75f;
 float RUNSPEED = 99;
-float SLIDESPEED = 65;
+float MAXSPEED = 100;
+float SLIDESPEED = 80;
 float RUNSCALE = 1.2f;
 float PARKOURSCALE = 1.1f;
 

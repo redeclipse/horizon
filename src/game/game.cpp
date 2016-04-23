@@ -608,22 +608,11 @@ namespace game
         }
     }
 
-    void drawhudicons(gameent *d)
-    {
-#if 0
-        pushhudscale(2);
-
-        pophudmatrix();
-        resethudshader();
-
-#endif
-    }
-
     void gameplayhud(int w, int h)
     {
         pushhudscale(h/1800.0f);
 
-        if(player1->state==CS_SPECTATOR)
+        if(player1->state == CS_SPECTATOR)
         {
             float pw, ph, tw, th, fw, fh;
             text_boundsf("  ", pw, ph);
@@ -638,8 +627,8 @@ namespace game
                 int color = f->state!=CS_DEAD ? 0xFFFFFF : 0x606060;
                 if(f->privilege)
                 {
-                    color = f->privilege>=PRIV_ADMIN ? 0xFF8000 : 0x40FF80;
-                    if(f->state==CS_DEAD) color = (color>>1)&0x7F7F7F;
+                    color = f->privilege >= PRIV_ADMIN ? 0xFF8000 : 0x40FF80;
+                    if(f->state == CS_DEAD) color = (color>>1)&0x7F7F7F;
                 }
                 draw_text(colorname(f), w*1800/h - fw - pw, 1650 - fh, (color>>16)&0xFF, (color>>8)&0xFF, color&0xFF);
             }
@@ -647,9 +636,9 @@ namespace game
         }
 
         gameent *d = hudplayer();
-        if(d->state!=CS_EDITING)
+        if(d->state != CS_EDITING && d->state != CS_SPECTATOR)
         {
-            if(d->state!=CS_SPECTATOR) drawhudicons(d);
+            draw_textf("vel: %.2f", 20, 1650, d->vel.magnitude());
         }
 
         pophudmatrix();
