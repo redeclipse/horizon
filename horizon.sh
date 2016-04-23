@@ -3,6 +3,8 @@ if [ "${HORIZON_CALLED}" = "true" ]; then HORIZON_EXITR="return"; else HORIZON_E
 HORIZON_SCRIPT="$0"
 HORIZON_ARGS=$@
 HORIZON_SYSTEM="$(uname -s)"
+HORIZON_OPTIONS="-glog.txt"
+
 if [ -z "${HORIZON_HOME+isset}" ]; then HORIZON_HOME="${HOME}/.horizon"; fi
 
 horizon_path() {

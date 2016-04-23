@@ -1,6 +1,7 @@
 @ECHO OFF
 setlocal enableextensions enabledelayedexpansion
 :horizon_path
+    set HORIZON_OPTIONS=-glog.txt
     if NOT DEFINED set HORIZON_HOME=$HOME\My Games\Red Eclipse Horizon
     if DEFINED HORIZON_PATH goto horizon_init
     pushd "%~dp0"
