@@ -889,6 +889,7 @@
 			<Option target="horizon-amd64-dbg" />
 			<Option target="horizon-amd64-prof" />
 		</Unit>
+		<Unit filename="engine/version.h" />
 		<Unit filename="engine/vertmodel.h">
 			<Option target="horizon-x86" />
 			<Option target="horizon-x86-dbg" />
@@ -991,16 +992,6 @@
 			<Option target="horizon-amd64-prof" />
 		</Unit>
 		<Unit filename="game/weapon.cpp">
-			<Option target="horizon-x86" />
-			<Option target="horizon-x86-dbg" />
-			<Option target="horizon-x86-prof" />
-			<Option target="horizon-amd64" />
-			<Option target="horizon-amd64-dbg" />
-			<Option target="horizon-amd64-prof" />
-		</Unit>
-		<Unit filename="mingw.rc">
-			<Option compilerVar="WINDRES" />
-			<Option compiler="gcc" use="1" buildCommand="$rescomp -F $WINDRES_TARGET -i $file -J rc -o $resource_output -O coff $res_includes" />
 			<Option target="horizon-x86" />
 			<Option target="horizon-x86-dbg" />
 			<Option target="horizon-x86-prof" />

@@ -50,10 +50,10 @@ enum { ENT_PLAYER = 0, ENT_CAMERA, ENT_BOUNCE };
 enum { COLLIDE_NONE = 0, COLLIDE_ELLIPSE, COLLIDE_OBB, COLLIDE_TRI };
 
 extern float STAIRHEIGHT, FLOORZ, SLOPEZ, WALLZ;
-extern float JUMPVEL, LONGJUMPVEL, GRAVITY, PARKOURVEL, KICKVEL, CLIMBVEL, CLIMBUPVEL, CLIMBSCALE, UPWALLVEL, SLIDEVEL;
+extern float JUMPVEL, VAULTVEL, GRAVITY, PARKOURVEL, KICKVEL, CLIMBVEL, CLIMBUPVEL, CLIMBSCALE, UPWALLVEL, SLIDEVEL;
 extern float CLIMBMIN, CLIMBMAX, FACINGANGLE, JUMPFORWARD, JUMPBACKWARD, JUMPUPWARD, JUMPSTRAFE;
 extern int JUMPDELAY, PARKOURMILLIS, PARKOURLENGTH, CLIMBLENGTH, PARKOURCOUNT, SLIDETIME, SLIDEDELAY;
-extern float PARKOURROLL, PARKOURANGLE, CLIMBANGLE, UPWALLANGLE, LONGJUMPMIN, LONGJUMPMAX, KICKMAX;
+extern float PARKOURROLL, PARKOURANGLE, CLIMBANGLE, UPWALLANGLE, KICKMAX;
 extern float LIQUIDSPEED, STRAFESCALE, BACKPEDALSCALE, RUNSPEED, MAXSPEED, SLIDESPEED, RUNSCALE, PARKOURSCALE;
 extern float WATERCOAST, FLOORCOAST, RUNNINGCOAST, AIRCOAST, PARKOURCOAST, SLIDECOAST;
 extern int CROUCHTIME;
@@ -117,6 +117,13 @@ struct physent                                  // base entity type, can be affe
     bool crouched() const { return fabs(eyeheight - maxheight*CROUCHHEIGHT) < 1e-4f; }
     bool sliding(int millis, int delay, bool check = false) const { return crouching && physstate >= PHYS_SLOPE && (check ? lastslide > 0 : lastslide != 0) && millis-abs(lastslide) <= delay; }
     bool velxychk(float speed) const { return sqrtf(vel.x*vel.x+vel.y*vel.y) >= speed; }
+
+    void hitfloor(bool inair = false)
+    {
+        if(inair) jumping = false;
+        timeinair = 0;
+    }
+
 };
 
 enum
